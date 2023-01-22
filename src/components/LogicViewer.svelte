@@ -1,4 +1,10 @@
 <script lang="ts">
+    import NodeBase from './NodeBase.svelte';
+    import GenericNode from './GenericNode.svelte';
+    import * as LGB from './types';
+    let tmp = new LGB.MainTest();
+    tmp.crazy_func();
+
 	let pos_x = 0;
 	let pos_y = 0;
 	let width;
@@ -16,6 +22,7 @@
 	}
 	function handleMouseUp(e: MouseEvent) {
 		dragging = false;
+        console.debug('[LogicViewer] Dragging Canvas Stopped')
 	}
 	function handleMouseMove(e: MouseEvent) {
         if(dragging){
@@ -39,12 +46,15 @@
 		xmlns="http://www.w3.org/2000/svg"
 		version="1.1"
 		viewBox="{pos_x} {pos_y} {width} {height}"
-        style="background-position:{-pos_x}px {-pos_y}px;">
-		<rect x="0" y="0" rx="10" ry="10" width="100" height="100" />
+        style="background-position:{-pos_x}px {-pos_y}px;"
+    >
+        <!-- Nodes for inside the logic viewer go here-->
+        <GenericNode />
+        <!-- Ending Nodes here -->
 	</svg>
 	<div
 		id="infopanel"
-		class="bg-[rgb(255,255,255,0.7)] p-2 rounded-lg absolute top-3 left-3 text-xl bg-transparent font-mono"
+		class="bg-[rgb(255,255,255,0.7)] p-2 rounded-lg absolute top-3 left-3 text-xl font-mono"
 	>
 		<p>Position x:{pos_x} y:{pos_y}</p>
 		<p>Size w:{width} h:{height}</p>

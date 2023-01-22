@@ -3,6 +3,7 @@
 
 	function toggle() {
 		value = !value;
+        console.debug("[ToggleButton]",this.innerHTML," = ",value);
 	}
 </script>
 

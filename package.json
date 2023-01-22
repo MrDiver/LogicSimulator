@@ -39,6 +39,7 @@
 	"type": "module",
 	"dependencies": {
 		"@sveltejs/adapter-static": "^1.0.5",
+		"ansi-colors": "^4.1.3",
 		"two.js": "^0.8.10"
 	}
 }

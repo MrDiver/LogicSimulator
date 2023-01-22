@@ -10,8 +10,8 @@
 
     const width=100;
     const height=((Math.max(in_ports,out_ports)+2)*port_margin);
-    let pos_x = 300;
-    let pos_y = 400;
+    let pos_x = 0;
+    let pos_y = 0;
 
     function calc_port(id:number, num_ports:number, dimension:number){
         const port_spacing = (dimension+port_margin)/(num_ports+1)

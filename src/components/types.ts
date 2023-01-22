@@ -171,13 +171,18 @@ interface Positionable {
     pos_y: number;
 }
 
-export abstract class AbstractNode implements IdHolder {
+export abstract class AbstractNode implements IdHolder, Positionable {
+    pos_x: number;
+    pos_y: number;
+
     id: number;
     name: string;
     in_ports: InPort[];
     out_ports: OutPort[];
 
     constructor(name: string, n_in: number, n_out: number) {
+        this.pos_x = 0;
+        this.pos_y = 0;
         this.id = id();
         this.name = name + this.id;
         this.in_ports = [];
@@ -206,8 +211,8 @@ export class Inverter extends AbstractNode {
     }
 
     customUpdate(): void {
-        let a = this.in_ports[0].readPort();
-        let out = this.out_ports[0];
+        const a = this.in_ports[0].readPort();
+        const out = this.out_ports[0];
         switch (a) {
             case LogicValue.Z: {
                 out.writePort(LogicValue.X);
@@ -249,8 +254,8 @@ export class MainTest {
 
         const n1 = new Inverter();
         const button = new OutPort(0);
-        const wire1 = new Wire(button,n1.in_ports[0]);
-        const led = new InPort(0,e=>{console.log(`LED -> ${e?.readPort()}`)})
+        const wire1 = new Wire(button, n1.in_ports[0]);
+        const led = new InPort(0, e => { console.log(`LED -> ${e?.readPort()}`) })
         const wire2 = new Wire(n1.out_ports[0], led);
         console.log(n1);
         console.log("Writing Inverter");

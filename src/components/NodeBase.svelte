@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { showPositions } from '../stores/global-config';
     import {fade} from 'svelte/transition';
+    import { zoomLevel } from '../stores/global-config';
 
     let svg_wrapper: SVGSVGElement;
     export let pos_x = 0;
@@ -19,8 +20,8 @@
 
 	function handleMouseMove(e: MouseEvent) {
 		if (isDragging) {
-			pos_x += e.movementX;
-			pos_y += e.movementY;
+			pos_x += e.movementX*$zoomLevel;
+			pos_y += e.movementY*$zoomLevel;
 		}
 	}
 </script>

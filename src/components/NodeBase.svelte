@@ -27,7 +27,7 @@
 </script>
 
 <svg
-    x="{pos_x}" y="{pos_y}" class="overflow-visible"
+    x="{Math.round(pos_x)}" y="{Math.round(pos_y)}" class="overflow-visible"
 	on:mousedown={handleDragStart}
     bind:this={svg_wrapper}
 >

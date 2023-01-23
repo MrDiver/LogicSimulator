@@ -4,7 +4,7 @@ export enum PortType {
     DEBUG
 }
 
-enum LogicValue {
+export enum LogicValue {
     HIGH = "1",
     LOW = "0",
     X = "X",
@@ -155,11 +155,11 @@ export class Wire implements IdHolder, INamed, ICheckDrivable {
 }
 
 
-interface PortUpdateFunc {
+export interface PortUpdateFunc {
     (port: InPort): void
 }
 
-interface IPort extends ConnectionPoint, INamed {
+export interface IPort extends ConnectionPoint, INamed {
     port_id: number;
     port_name: string;
 }
@@ -239,7 +239,7 @@ export class OutPort extends MultiConnect implements IPort {
     }
 }
 
-interface Positionable {
+export interface Positionable {
     pos_x: number;
     pos_y: number;
 }

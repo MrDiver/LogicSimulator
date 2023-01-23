@@ -1,10 +1,8 @@
 <script lang="ts">
 	import NodeBase from './NodeBase.svelte';
 	import GenericNode from './GenericNode.svelte';
-	import * as LGB from './types';
+    import NodeManager from './NodeManager.svelte';
 	import { zoomLevel } from '../stores/global-config';
-	let tmp = new LGB.MainTest();
-	tmp.crazy_func();
 
 	let pos_x = 0;
 	let pos_y = 0;
@@ -77,7 +75,7 @@
         "
 	>
 		<!-- Nodes for inside the logic viewer go here-->
-		<GenericNode />
+		<NodeManager />
 		<!-- Ending Nodes here -->
 	</svg>
 	<div

@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { Wire } from './types';
 	export let wire_node: Wire;
-    export let node_a;
-	export let node_b;
+    let timer = setInterval(()=>console.log(wire_node.a.pos_x),1000);
 </script>

@@ -28,7 +28,7 @@ interface ICheckDrivable {
     checkOnlyOneDriver(sender: Wire | OutPort | ConnectionPoint): number;
 }
 
-interface ConnectionPoint extends IdHolder, INamed, ICheckDrivable {
+interface ConnectionPoint extends IdHolder, INamed, ICheckDrivable, Positionable{
     add(w: Wire): void;
     remove(w: Wire): void;
     sendToConnection(value: LogicValue, sender: Wire | OutPort | null): void;
@@ -37,12 +37,16 @@ interface ConnectionPoint extends IdHolder, INamed, ICheckDrivable {
 export class MultiConnect implements ConnectionPoint {
     id: number;
     name: string;
+    pos_x: number;
+    pos_y: number;
     connections: Wire[];
     currentlyChecked = false;
     constructor() {
         this.id = id();
         this.name = "MultiConnect" + this.id
         this.connections = [];
+        this.pos_x = 0;
+        this.pos_y = 0;
     }
     add(w: Wire) {
         this.connections.push(w);
@@ -159,7 +163,7 @@ export interface PortUpdateFunc {
     (port: InPort): void
 }
 
-export interface IPort extends ConnectionPoint, INamed {
+export interface IPort extends ConnectionPoint, INamed{
     port_id: number;
     port_name: string;
 }
@@ -169,6 +173,8 @@ export class InPort implements IPort {
     port_id: number;
     name: string;
     port_name: string;
+    pos_x: number;
+    pos_y: number;
     #value: LogicValue;
     #connection: Wire | null;
     #onInputChange;
@@ -180,6 +186,8 @@ export class InPort implements IPort {
         this.#onInputChange = onInputChange ?? (() => { return });
         this.#value = LogicValue.Z;
         this.#connection = null;
+        this.pos_x = 0;
+        this.pos_y = 0;
     }
     checkOnlyOneDriver(sender: Wire | OutPort | ConnectionPoint): number {
         return 0;
@@ -225,7 +233,7 @@ export class OutPort extends MultiConnect implements IPort {
     writePort(value: LogicValue) {
         if (value !== this.#value) {
             this.#value = value;
-            console.info(`%c[${this.name}]%c Sending output -> ${value}`,"color:yellow","color:white")
+            console.info(`%c[${this.name}]%c Sending output -> ${value}`, "color:yellow", "color:white")
             this.currentlyChecked = true;
             this.sendToConnection(value, this);
             this.currentlyChecked = false;
@@ -313,7 +321,7 @@ export class Source extends AbstractNode {
         super("Source", 0, 1);
     }
 
-    set(v:LogicValue){
+    set(v: LogicValue) {
         this.out_ports[0].writePort(v);
     }
 
@@ -324,12 +332,12 @@ export class Source extends AbstractNode {
 
 export class Sink extends AbstractNode {
     callback;
-    constructor(callback:(v:LogicValue)=>void) {
+    constructor(callback: (v: LogicValue) => void) {
         super("Sink", 1, 0);
         this.callback = callback;
     }
 
-    get():LogicValue{
+    get(): LogicValue {
         return this.in_ports[0].readPort();
     }
 
@@ -370,30 +378,30 @@ export class MainTest {
         //button.sendToConnection(LogicValue.Z);
 
 
-        // const driver1 = new OutPort(0);
-        // const driver2 = new OutPort(1);
-        // const attachmentPoint = new MultiConnect();
-        // const sink1 = new InPort(0);
-        // //console.log(driver1, driver2, attachmentPoint, sink1);
-        // const wire1 = new Wire(driver1, attachmentPoint);
-        // const wire2 = new Wire(driver2, attachmentPoint);
-        // const wire3 = new Wire(attachmentPoint, sink1);
-        // //console.log(wire1, wire2, wire3);
-        // driver1.writePort(LogicValue.HIGH);
-        // //console.log(driver1, driver2, attachmentPoint, sink1);
-        // //console.log(wire1, wire2, wire3);
-        // driver2.writePort(LogicValue.LOW);
-        // console.log(driver1, driver2, attachmentPoint, sink1);
-        // console.log(wire1, wire2, wire3);
-        
-        const d1 = new Source();
-        const inv1 = new Inverter();
-        const s1 = new Sink((v)=>{
-            console.log("Sink Updatet to "+v);
-        });
-        const w1 = new Wire(d1.out_ports[0], inv1.in_ports[0]);
-        const w2 = new Wire(inv1.out_ports[0], s1.in_ports[0]);
-        d1.set(LogicValue.HIGH);
+        const driver1 = new OutPort(0);
+        const driver2 = new OutPort(1);
+        const attachmentPoint = new MultiConnect();
+        const sink1 = new InPort(0);
+        //console.log(driver1, driver2, attachmentPoint, sink1);
+        const wire1 = new Wire(driver1, attachmentPoint);
+        const wire2 = new Wire(driver2, attachmentPoint);
+        const wire3 = new Wire(attachmentPoint, sink1);
+        //console.log(wire1, wire2, wire3);
+        driver1.writePort(LogicValue.HIGH);
+        //console.log(driver1, driver2, attachmentPoint, sink1);
+        //console.log(wire1, wire2, wire3);
+        driver2.writePort(LogicValue.HIGH);
+        console.log(driver1, driver2, attachmentPoint, sink1);
+        console.log(wire1, wire2, wire3);
+
+        // const d1 = new Source();
+        // const inv1 = new Inverter();
+        // const s1 = new Sink((v)=>{
+        //     console.log("Sink Updatet to "+v);
+        // });
+        // const w1 = new Wire(d1.out_ports[0], inv1.in_ports[0]);
+        // const w2 = new Wire(inv1.out_ports[0], s1.in_ports[0]);
+        // d1.set(LogicValue.HIGH);
     }
 }
 

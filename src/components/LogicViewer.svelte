@@ -82,7 +82,7 @@
 		id="infopanel"
 		class="bg-[rgb(255,255,255,0.7)] p-2 rounded-lg absolute top-3 left-3 text-xl font-mono"
 	>
-		<p>Position x:{pos_x} y:{pos_y}</p>
+		<p>Position x:{Math.round(pos_x)} y:{Math.round(pos_y)}</p>
 		<p>Size w:{width} h:{height}</p>
         <p>vx:{Math.round(vx)} vy:{Math.round(vy)} vw:{Math.round(vw)} vh:{Math.round(vh)}</p>
 	</div>

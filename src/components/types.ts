@@ -28,7 +28,7 @@ interface ICheckDrivable {
     checkOnlyOneDriver(sender: Wire | OutPort | ConnectionPoint): number;
 }
 
-interface ConnectionPoint extends IdHolder, INamed, ICheckDrivable, Positionable{
+export interface ConnectionPoint extends IdHolder, INamed, ICheckDrivable, Positionable{
     add(w: Wire): void;
     remove(w: Wire): void;
     sendToConnection(value: LogicValue, sender: Wire | OutPort | null): void;

@@ -2,7 +2,7 @@
 	import NodeBase from './NodeBase.svelte';
 	import GenericNode from './GenericNode.svelte';
     import NodeManager from './NodeManager.svelte';
-	import { zoomLevel } from '../stores/global-config';
+	import { currentConnectedPort, secondaryConnectedPort, zoomLevel } from '../stores/global-config';
 
 	let pos_x = 0;
 	let pos_y = 0;
@@ -85,6 +85,8 @@
 		<p>Position x:{Math.round(pos_x)} y:{Math.round(pos_y)}</p>
 		<p>Size w:{width} h:{height}</p>
         <p>vx:{Math.round(vx)} vy:{Math.round(vy)} vw:{Math.round(vw)} vh:{Math.round(vh)}</p>
+        <p>Primary: {$currentConnectedPort}</p>
+        <p>Secondary: {$secondaryConnectedPort}</p>
 	</div>
 	<canvas />
 </div>

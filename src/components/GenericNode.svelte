@@ -27,6 +27,7 @@
 {#each abstract_node.in_ports as port}
 	<NodePort
         on:start_port_connect
+        on:cancel_port_connect
 		bind:port_node={port}
 		type={PortType.IN}
 		pos_x={abstract_node.pos_x + 0}
@@ -36,6 +37,7 @@
 {#each abstract_node.out_ports as port}
 	<NodePort
         on:start_port_connect
+        on:cancel_port_connect
 		bind:port_node={port}
 		type={PortType.OUT}
 		pos_x={abstract_node.pos_x + width}

@@ -1,7 +1,7 @@
 export enum PortType {
     IN,
     OUT,
-    DEBUG
+    MULTI,
 }
 
 export enum LogicValue {
@@ -29,9 +29,11 @@ interface ICheckDrivable {
 }
 
 export interface ConnectionPoint extends IdHolder, INamed, ICheckDrivable, Positionable{
+    port_type : PortType;
     add(w: Wire): void;
     remove(w: Wire): void;
     sendToConnection(value: LogicValue, sender: Wire | OutPort | null): void;
+    connections: Wire[];
 }
 
 export class MultiConnect implements ConnectionPoint {
@@ -41,12 +43,14 @@ export class MultiConnect implements ConnectionPoint {
     pos_y: number;
     connections: Wire[];
     currentlyChecked = false;
+    port_type: PortType;
     constructor() {
         this.id = id();
         this.name = "MultiConnect" + this.id
         this.connections = [];
         this.pos_x = 0;
         this.pos_y = 0;
+        this.port_type = PortType.MULTI;
     }
     add(w: Wire) {
         this.connections.push(w);
@@ -175,8 +179,9 @@ export class InPort implements IPort {
     port_name: string;
     pos_x: number;
     pos_y: number;
+    port_type: PortType;
     #value: LogicValue;
-    #connection: Wire | null;
+    connections: Wire[];
     #onInputChange;
     constructor(port_id: number, onInputChange: PortUpdateFunc | null = null) {
         this.id = id();
@@ -185,20 +190,21 @@ export class InPort implements IPort {
         this.port_name = "";
         this.#onInputChange = onInputChange ?? (() => { return });
         this.#value = LogicValue.Z;
-        this.#connection = null;
+        this.connections = [];
         this.pos_x = 0;
         this.pos_y = 0;
+        this.port_type = PortType.IN;
     }
     checkOnlyOneDriver(sender: Wire | OutPort | ConnectionPoint): number {
         return 0;
     }
     add(w: Wire): void {
         console.debug(`${this.name} Connected to ${w.name}`);
-        this.#connection = w;
+        this.connections = [w];
     }
     remove(w: Wire): void {
         console.debug(`${this.name} Disconnected from ${w.name}`);
-        this.#connection = null;
+        this.connections = [];
     }
 
     sendToConnection(value: LogicValue, sender: Wire | null): void {
@@ -215,6 +221,7 @@ export class InPort implements IPort {
 export class OutPort extends MultiConnect implements IPort {
     port_id: number;
     port_name: string;
+    port_type: PortType;
     #value: LogicValue;
     constructor(port_id: number) {
         super();
@@ -222,6 +229,7 @@ export class OutPort extends MultiConnect implements IPort {
         this.name = `OutPort(${this.port_id})_${this.id}`;
         this.port_name = "";
         this.#value = LogicValue.Z;
+        this.port_type = PortType.OUT;
     }
     checkOnlyOneDriver(sender: OutPort | ConnectionPoint | Wire | null): number {
         console.debug(`%c[${this.name}] EndPoint driven: ${this.isDriven()}`, "color:#4f4")

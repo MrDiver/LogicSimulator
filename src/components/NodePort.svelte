@@ -47,7 +47,7 @@
 		console.debug('[Port] Was clicked');
 		is_connecting = true;
         isConnectingState.set(true);
-        currentConnectedPort.set(port_store);
+        currentConnectedPort.set({source:port_node, store:port_store});
 	}
 	function handleMouseUp(e: MouseEvent) {
 		console.debug('[Port] Connection was cancelled');
@@ -61,7 +61,7 @@
 		if (!is_connecting && $isConnectingState) {
             console.debug(`[Port] Selected ${port_node.name} as secondary`)
 			is_secondary = true;
-            secondaryConnectedPort.set(port_store);
+            secondaryConnectedPort.set({source:port_node, store:port_store});
 		}
 	}
 	function handleMouseLeave(e: MouseEvent) {
@@ -75,6 +75,11 @@
         if (!$isConnectingState){
             is_secondary = false;
             is_connecting = false;
+        }
+    }
+    $: {
+        if(type === PortType.IN){
+            connected = $port_store.connections.length > 0
         }
     }
 </script>

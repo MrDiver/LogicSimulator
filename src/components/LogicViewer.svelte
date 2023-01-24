@@ -85,8 +85,8 @@
 		<p>Position x:{Math.round(pos_x)} y:{Math.round(pos_y)}</p>
 		<p>Size w:{width} h:{height}</p>
         <p>vx:{Math.round(vx)} vy:{Math.round(vy)} vw:{Math.round(vw)} vh:{Math.round(vh)}</p>
-        <p>Primary: {$currentConnectedPort}</p>
-        <p>Secondary: {$secondaryConnectedPort}</p>
+        <p>Primary: {$currentConnectedPort!==null ?$currentConnectedPort.source.name : "null"}</p>
+        <p>Secondary: {$secondaryConnectedPort !==null? $secondaryConnectedPort.source.name : "null"}</p>
 	</div>
 	<canvas />
 </div>

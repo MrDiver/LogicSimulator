@@ -3,10 +3,9 @@
     import {fade} from 'svelte/transition';
     import { zoomLevel } from '../stores/global-config';
 
-    let svg_wrapper: SVGSVGElement;
     export let pos_x = 0;
     export let pos_y = 0;
-	let isDragging = false;
+	export let isDragging = false;
 
 	function handleDragStart(e: MouseEvent) {
         console.debug("[NodeBase] Drag Started");
@@ -29,7 +28,8 @@
 <svg
     x="{Math.round(pos_x)}" y="{Math.round(pos_y)}" class="overflow-visible"
 	on:mousedown={handleDragStart}
-    bind:this={svg_wrapper}
+            class:cursor-grabbing={isDragging}
+            class:cursor-grab={!isDragging}
 >
 	<slot />
 	{#if $showPositions}

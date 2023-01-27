@@ -1,3 +1,4 @@
+// Add store to and view classes to seperate backend and frontend an automagically udpate values
 export enum PortType {
     IN,
     OUT,

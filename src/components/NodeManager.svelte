@@ -1,37 +1,44 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { writable, type Writable } from 'svelte/store';
-	import { currentConnectedPort, isConnectingState, secondaryConnectedPort } from '../stores/global-config';
-    import GenericNode from './GenericNode.svelte';
-import * as LGB from './types';
+	import {
+		currentConnectedPort,
+		isConnectingState,
+		secondaryConnectedPort
+	} from '../stores/global-config';
+	import GenericNode from './GenericNode.svelte';
+	import * as LS from './simulator';
+	import Source from './Source.svelte';
 	import Wire from './Wire.svelte';
 	// let tmp = new LGB.MainTest();
 	// tmp.crazy_func();
+    const tmp = new LS.TestMain();
+    tmp.main();
 
-    let inv1 = writable(new LGB.Inverter());
-    let inv2 = writable(new LGB.Inverter());
-    let wires :{node_a:Writable<LGB.ConnectionPoint>,node_b:Writable<LGB.ConnectionPoint>, wire:LGB.Wire}[]= [];
-    
-    let current_primary_port_store = null;
-    function handleCancelPortConnect(e:CustomEvent<null>){
+    let wires: LS.Wire[] = [];
+    let source1 = new LS.Source();
+	let inv1 = new LS.Inverter();
+	let inv2 = new LS.Inverter();
+
+	let current_primary_port_store = null;
+	function handleCancelPortConnect(e: CustomEvent<null>) {
+        console.log($currentConnectedPort, $secondaryConnectedPort);
+		if ($currentConnectedPort !== null && $secondaryConnectedPort !== null) {
+			console.log('TRYING TO CONNECT NODES');
+			let w = new LS.Wire($currentConnectedPort, $secondaryConnectedPort);
+			console.log(w);
+			wires.push(w);
+			wires = wires;
+		} else {
+			console.log('CANCEL CONNECTING');
+		}
         current_primary_port_store = null;
-        if($currentConnectedPort!==null && $secondaryConnectedPort!==null){
-            console.log("TRYING TO CONNECT NODES")
-            let w = {node_a: $currentConnectedPort.store, node_b: $secondaryConnectedPort.store, wire: new LGB.Wire($currentConnectedPort.source, $secondaryConnectedPort.source)}
-            console.log(w);
-            wires.push(w);
-            wires = wires;
-        }else{
-            console.log("CANCEL CONNECTING");
-        }
-        currentConnectedPort.set(null);
-        secondaryConnectedPort.set(null);
-    }
+		currentConnectedPort.set(null);
+		secondaryConnectedPort.set(null);
+	}
 </script>
 
-{#each wires as {node_a,node_b,wire}}
-    <Wire node_a={node_a} node_b={node_b} bind:wire_node={wire}/>
+{#each wires as wire}
+	<Wire wire_node={wire} />
 {/each}
-<GenericNode on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={$inv1}/>
-<GenericNode on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={$inv2}/>
-
+<GenericNode on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={inv1} />
+<GenericNode on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={inv2} />
+<Source on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={source1}/>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import NodeBase from './NodeBase.svelte';
 	import GenericNode from './GenericNode.svelte';
-    import NodeManager from './NodeManager.svelte';
+	import NodeManager from './NodeManager.svelte';
 	import { currentConnectedPort, secondaryConnectedPort, zoomLevel } from '../stores/global-config';
 
 	let pos_x = 0;
@@ -29,8 +29,8 @@
 	}
 	function handleMouseMove(e: MouseEvent) {
 		if (dragging) {
-			pos_x -= e.movementX*$zoomLevel;
-			pos_y -= e.movementY*$zoomLevel;
+			pos_x -= e.movementX * $zoomLevel;
+			pos_y -= e.movementY * $zoomLevel;
 		}
 	}
 	function handleScroll(e: WheelEvent) {
@@ -68,7 +68,7 @@
 		xmlns="http://www.w3.org/2000/svg"
 		version="1.1"
 		viewBox="{vx} {vy} {vw} {vh}"
-		style="background-position:{-vx/$zoomLevel}px {-vy/$zoomLevel}px;
+		style="background-position:{-vx / $zoomLevel}px {-vy / $zoomLevel}px;
 		background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'{300 /
 			$zoomLevel}\' height=\'{300 /
 			$zoomLevel}\' viewBox=\'{0} {0} {100} {100}\'%3E%3Cg fill-rule=\'evenodd\'%3E%3Cg fill=\'%23898989\' fill-opacity=\'0.4\'%3E%3Cpath opacity=\'.5\' d=\'M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z\'/%3E%3Cpath d=\'M6 5V0H5v5H0v1h5v94h1V6h94V5H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
@@ -84,9 +84,9 @@
 	>
 		<p>Position x:{Math.round(pos_x)} y:{Math.round(pos_y)}</p>
 		<p>Size w:{width} h:{height}</p>
-        <p>vx:{Math.round(vx)} vy:{Math.round(vy)} vw:{Math.round(vw)} vh:{Math.round(vh)}</p>
-        <p>Primary: {$currentConnectedPort!==null ?$currentConnectedPort.source.name : "null"}</p>
-        <p>Secondary: {$secondaryConnectedPort !==null? $secondaryConnectedPort.source.name : "null"}</p>
+		<p>vx:{Math.round(vx)} vy:{Math.round(vy)} vw:{Math.round(vw)} vh:{Math.round(vh)}</p>
+		<p>Primary: {$currentConnectedPort !== null ? $currentConnectedPort.id : 'null'}</p>
+		<p>Secondary: {$secondaryConnectedPort !== null ? $secondaryConnectedPort.id : 'null'}</p>
 	</div>
 	<canvas />
 </div>

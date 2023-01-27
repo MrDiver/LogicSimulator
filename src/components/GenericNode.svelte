@@ -1,16 +1,20 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import NodeBase from './NodeBase.svelte';
 	import NodePort from './NodePort.svelte';
-	import { AbstractNode, PortType } from './types';
+	import type { Component } from './simulator';
 
 	// Attributes
-	export let abstract_node: AbstractNode;
-	let in_ports = abstract_node.in_ports.length;
-	let out_ports = abstract_node.out_ports.length;
-	const port_margin = 20;
+	export let abstract_node: Component;
+	export let show_name = true;
+	export let show_labels = true;
+	const node = abstract_node.getStore();
+	let in_ports = $node.in_pins.length;
+	let out_ports = $node.out_pins.length;
+	const port_margin = 25;
 
-	const width = 100;
-	const height = (Math.max(in_ports, out_ports) + 2) * port_margin;
+	export let width = 80;
+	export let height = (Math.max(in_ports, out_ports) + 2) * port_margin;
 
 	function calc_port(id: number, num_ports: number, dimension: number) {
 		const port_spacing = (dimension + port_margin) / (num_ports + 1);
@@ -18,29 +22,40 @@
 	}
 </script>
 
-<NodeBase bind:pos_x={abstract_node.pos_x} bind:pos_y={abstract_node.pos_y}>
-	<rect fill="white" stroke="black" stroke-width="2" x="0" y="0" rx="10" ry="10" {width} {height} />
-	<text dominant-baseline="middle" text-anchor="middle" x={width / 2} y={height / 2}
-		>{abstract_node.name}</text
-	>
+<NodeBase bind:pos_x={$node.x} bind:pos_y={$node.y}>
+	<slot>
+		<rect class="fill-white stroke-black stroke-2" x="0" y="0" rx="10" ry="10" {width} {height} />
+	</slot>
+
+	{#if show_name}
+		<text
+			class="fill-gray-500"
+			dominant-baseline="hanging"
+			text-anchor="middle"
+			x={width / 2}
+			y={2}
+		>
+			{abstract_node.name}
+		</text>
+	{/if}
 </NodeBase>
-{#each abstract_node.in_ports as port}
+{#each $node.in_pins as port, i}
 	<NodePort
-        on:start_port_connect
-        on:cancel_port_connect
+		on:start_port_connect
+		on:cancel_port_connect
 		bind:port_node={port}
-		type={PortType.IN}
-		pos_x={abstract_node.pos_x + 0}
-		pos_y={abstract_node.pos_y + calc_port(port.port_id, in_ports, height)}
+		bind:show_labels
+		pos_x={$node.x + 0}
+		pos_y={$node.y + calc_port(i, in_ports, height)}
 	/>
 {/each}
-{#each abstract_node.out_ports as port}
+{#each $node.out_pins as port, i}
 	<NodePort
-        on:start_port_connect
-        on:cancel_port_connect
+		on:start_port_connect
+		on:cancel_port_connect
 		bind:port_node={port}
-		type={PortType.OUT}
-		pos_x={abstract_node.pos_x + width}
-		pos_y={abstract_node.pos_y + calc_port(port.port_id, out_ports, height)}
+		bind:show_labels
+		pos_x={$node.x + width}
+		pos_y={$node.y + calc_port(i, out_ports, height)}
 	/>
 {/each}

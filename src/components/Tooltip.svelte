@@ -14,7 +14,7 @@
 </script>
 
 <div
-	class="tooltip"
+	class="tooltip pointer-events-none"
 	class:opacity-0={is_hidden}
 	role="tooltip"
 	style="left: {xAxis}px; top: {yAxis}px;"

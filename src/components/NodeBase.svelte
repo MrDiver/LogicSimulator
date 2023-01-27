@@ -1,43 +1,67 @@
 <script lang="ts">
-	import { showPositions } from '../stores/global-config';
-    import {fade} from 'svelte/transition';
-    import { zoomLevel } from '../stores/global-config';
+	import { showPositions, useGrid } from '../stores/global-config';
+	import { fade } from 'svelte/transition';
+	import { zoomLevel, gridSpacing } from '../stores/global-config';
+	import { spring } from 'svelte/motion';
+	import InfoText from './InfoText.svelte';
 
-    export let pos_x = 0;
-    export let pos_y = 0;
+	export let width: number;
+	export let height: number;
 	export let isDragging = false;
+	let x = -width / 2;
+	let y = -height / 2;
+	export let position = spring({ x, y }, {stiffness:1,damping:1});
+	function toGrid(x: number): number {
+		if ($useGrid) {
+			return Math.round(x / $gridSpacing) * $gridSpacing;
+		}
+		return x;
+	}
 
 	function handleDragStart(e: MouseEvent) {
-        console.debug("[NodeBase] Drag Started");
+		console.debug('[NodeBase] Drag Started');
 		isDragging = true;
 	}
 
 	function handleDragStop(e: MouseEvent) {
-        console.debug("[NodeBase] Drag Stopped");
+		console.debug('[NodeBase] Drag Stopped');
 		isDragging = false;
+        x = $position.x+width/2;
+        y = $position.y+width/2;
 	}
 
 	function handleMouseMove(e: MouseEvent) {
 		if (isDragging) {
-			pos_x += e.movementX*$zoomLevel;
-			pos_y += e.movementY*$zoomLevel;
+			x += e.movementX * $zoomLevel;
+			y += e.movementY * $zoomLevel;
 		}
+	}
+	$: {
+        $useGrid;
+		$position = { x: toGrid(x) - width / 2, y: toGrid(y) - height / 2 };
 	}
 </script>
 
+<!-- svelte-ignore missing-declaration -->
 <svg
-    x="{Math.round(pos_x)}" y="{Math.round(pos_y)}" class="overflow-visible"
+	x={Math.round($position.x)}
+	y={Math.round($position.y)}
+	class="overflow-visible"
 	on:mousedown={handleDragStart}
-            class:cursor-grabbing={isDragging}
-            class:cursor-grab={!isDragging}
+	class:cursor-grabbing={isDragging}
+	class:cursor-grab={!isDragging}
 >
 	<slot />
-	{#if $showPositions}
-        <text transition:fade fill="red" x="0" y="-20">x:{pos_x} y:{pos_y}</text>
-	{/if}
+	<InfoText
+		x={0}
+		y_offset={-15}
+		y={0}
+		text_anchor="middle"
+		text_baseline="bottom"
+		bind:show={$showPositions}
+	>
+		x: {Math.round($position.x)} y: {Math.round($position.y)}
+	</InfoText>
 </svg>
 
 <svelte:window on:mouseup={handleDragStop} on:mousemove={handleMouseMove} />
-
-<style>
-</style>

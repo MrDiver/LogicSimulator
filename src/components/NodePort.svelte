@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { fade } from 'svelte/transition';
 	import {
 		currentConnectedPort,
 		isConnectingState,
 		secondaryConnectedPort,
-		showPositions
+		showIndices,
+		showPositions,
 	} from '../stores/global-config';
+	import InfoText from './InfoText.svelte';
 	import { ConnectionType, type Port } from './simulator';
 	import { genTooltip, tooltip } from './tooltip';
 
@@ -14,7 +15,7 @@
 	export let pos_x: number;
 	export let pos_y: number;
 	export let port_node: Port;
-    export let show_labels = true;
+	export let show_labels = true;
 	const port = port_node.getStore();
 	// Attributes
 	const label = port_node.port_name;
@@ -89,28 +90,27 @@
 
 <svelte:window on:mouseup={handleMouseUp} />
 
-<circle
-	use:tooltip
-	data-tooltip={genTooltip('Value: ' + $port.lastValue, 'Driver: ' + $port.isDriving())}
-	bind:this={circ}
-	on:mousedown={handleMouseDown}
-	on:mouseenter={handleMouseEnter}
-	on:mouseleave={handleMouseLeave}
-	id={port_node.port_name}
-	class="{is_connected
-		? 'fill-transparent'
-		: is_connecting
-		? 'fill-red-500/40'
-		: 'fill-lime-600/40'} {is_secondary
-		? 'hover:fill-blue-400'
-		: is_connecting
-		? 'hover:fill-red-500'
-		: 'hover:fill-lime-600'} hover:stroke-black/40 transition-colors ease-in-out duration-100
+<g on:mousedown={handleMouseDown} on:mouseenter={handleMouseEnter} on:mouseleave={handleMouseLeave}>
+	<circle
+		use:tooltip
+		data-tooltip={genTooltip('Value: ' + $port.lastValue, 'Driver: ' + $port.isDriving())}
+		bind:this={circ}
+		id={port_node.port_name}
+		class="{is_connected
+			? 'fill-transparent'
+			: is_connecting
+			? 'fill-red-500/40'
+			: 'fill-lime-600/40'} {is_secondary
+			? 'hover:fill-blue-400'
+			: is_connecting
+			? 'hover:fill-red-500'
+			: 'hover:fill-lime-600'} hover:stroke-black/40 transition-colors ease-in-out duration-100
     cursor-pointer"
-	cx={pos_x}
-	cy={pos_y}
-	r={port_size}
-/>
+		cx={pos_x}
+		cy={pos_y}
+		r={port_size}
+	/>
+</g>
 
 {#if label !== null && show_labels}
 	<text
@@ -125,16 +125,22 @@
 	</text>
 {/if}
 
-{#if $showPositions}
-	<text
-		transition:fade
-		fill="red"
-		font-family="sans"
-		text-anchor={text_anchor}
-		dominant-baseline="middle"
-		x={pos_x - 20 * label_offset}
-		y={pos_y}
-	>
-		x: {$port.x} y: {$port.y}
-	</text>
-{/if}
+<InfoText
+	bind:x={pos_x}
+	x_offset={-2 * label_offset}
+	text_anchor={$port.type === ConnectionType.IN ? 'end' : 'start'}
+	bind:y={pos_y}
+	bind:show={$showPositions}
+>
+	x: {Math.round($port.x)} y: {Math.round($port.y)}
+</InfoText>
+
+<InfoText
+	bind:show={$showIndices}
+	bind:x={pos_x}
+	bind:y={pos_y}
+    y_offset={20}
+	classes={'fill-white stroke-black'}
+>
+	{$port.id}
+</InfoText>

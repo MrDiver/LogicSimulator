@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { spring, type Spring } from 'svelte/motion';
 	import NodeBase from './NodeBase.svelte';
 	import NodePort from './NodePort.svelte';
 	import type { Component } from './simulator';
@@ -20,9 +21,15 @@
 		const port_spacing = (dimension + port_margin) / (num_ports + 1);
 		return (id + 1) * port_spacing - port_margin / 2;
 	}
+
+	let position: Spring<{ x: number; y: number }> = spring({ x: 0, y: 0 });
+    $: {
+        $node.x = $position.x;
+        $node.y = $position.y;
+    }
 </script>
 
-<NodeBase bind:pos_x={$node.x} bind:pos_y={$node.y}>
+<NodeBase {width} {height} bind:position>
 	<slot>
 		<rect class="fill-white stroke-black stroke-2" x="0" y="0" rx="10" ry="10" {width} {height} />
 	</slot>
@@ -45,8 +52,8 @@
 		on:cancel_port_connect
 		bind:port_node={port}
 		bind:show_labels
-		pos_x={$node.x + 0}
-		pos_y={$node.y + calc_port(i, in_ports, height)}
+		pos_x={$position.x + 0}
+		pos_y={$position.y + calc_port(i, in_ports, height)}
 	/>
 {/each}
 {#each $node.out_pins as port, i}
@@ -55,7 +62,7 @@
 		on:cancel_port_connect
 		bind:port_node={port}
 		bind:show_labels
-		pos_x={$node.x + width}
-		pos_y={$node.y + calc_port(i, out_ports, height)}
+		pos_x={$position.x + width}
+		pos_y={$position.y + calc_port(i, out_ports, height)}
 	/>
 {/each}

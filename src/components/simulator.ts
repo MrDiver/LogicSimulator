@@ -15,13 +15,13 @@ export enum LogicValue {
 
 type Constructor<T> = new (...args: any[]) => T;
 
+let _id_count = 0;
 function IdBase<TBase extends Constructor<object>>(Base: TBase) {
     return class IdBase extends Base {
-        static #_id_count = 0;
         id: number;
         constructor(...args: any[]) {
             super(...args)
-            this.id = IdBase.#_id_count++;
+            this.id = _id_count++;
         }
     }
 }
@@ -137,11 +137,29 @@ export class Wire extends AutoUpdateView(IdBase(Object)) {
         conA.connect(this);
         conB.connect(this);
         this.#lastValue = LogicValue.Z;
+        const a = this.conA.readValue(this);
+        const b = this.conB.readValue(this);
+        if(a!==b){
+            let count = 0
+            if(a !== LogicValue.Z){
+                this.#lastValue = a;
+                count++;
+            }
+            if(b !== LogicValue.Z){
+                this.#lastValue = b;
+                count++;
+            }
+            if(count > 1){
+                this.#lastValue = LogicValue.X;
+            }
+        }
+        
     }
     viewValue(): LogicValue {
         return this.#lastValue;
     }
     updateValue(source: Connector, v: LogicValue) {
+        if(this.id===0) return;
         if (this.#lastValue === v) {
             return;
         }
@@ -156,8 +174,12 @@ export class Wire extends AutoUpdateView(IdBase(Object)) {
     disconnectAll() {
         this.conA.disconnect(this);
         this.conB.disconnect(this);
+        this.id = -1;
+        this.#lastValue = LogicValue.Z;
+        this.triggerUpdateSelf();
     }
     getDrivers(sender: Connector): Connector[] {
+        if(this.id===0) return[];
         if (sender.id === this.conA.id) {
             return this.conB.getDrivers(this);
         } else if (sender.id === this.conB.id) {
@@ -185,6 +207,9 @@ class GeneralConnector extends Connector {
     protected isLocked() {
         return this.#currentlyChecked;
     }
+    protected spreadValue(v: LogicValue) {
+        this.connections.forEach(w => w.updateValue(this, v));
+    }
     isDriving(): boolean {
         if (this.type === ConnectionType.OUT) {
             return this.lastValue !== LogicValue.Z
@@ -194,7 +219,8 @@ class GeneralConnector extends Connector {
     }
     connect(wire: Wire): void {
         if (this.type === ConnectionType.IN) {
-            this.connections = [wire];
+            this.connections.forEach(w => w.disconnectAll());
+            this.connections = [wire]
         } else {
             this.disconnect(wire);
             this.connections.push(wire);
@@ -223,11 +249,11 @@ class GeneralConnector extends Connector {
         if (v === LogicValue.Z && drivers.length === 1) {
             this.lastValue = drivers[0].readValue(this);
             this.triggerUpdateSelf();
-            this.connections.forEach(w => w.updateValue(this, this.lastValue));
+            this.spreadValue(this.lastValue);
         } else if (drivers.length > 0) {
             this.lastValue = LogicValue.X;
             this.triggerUpdateSelf();
-            this.connections.forEach(w => w.updateValue(this, LogicValue.X));
+            this.spreadValue(LogicValue.X);
         } else {
             this.lastValue = v;
             this.triggerUpdateSelf();
@@ -320,6 +346,11 @@ export class InPort extends Port {
             this.callback(this);
         }
     }
+    override disconnect(wire: Wire): void {
+        console.log("disconnect port")
+        super.disconnect(wire);
+        this.writeValue(this, LogicValue.Z);
+    }
     override getDrivers(w: Wire): Connector[] {
         return [];
     }
@@ -366,6 +397,7 @@ export class Inverter extends Component {
         this.addOutputPin('Q\'');
     }
     override onInputChange(source: Connector): void {
+        console.log("Running Inverter");
         const in_pin = this.getInput(0);
         const out_pin = this.getOutput(0);
         switch (in_pin.readValue(this)) {

@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { showPositions, useGrid } from '../stores/global-config';
-	import { fade } from 'svelte/transition';
 	import { zoomLevel, gridSpacing } from '../stores/global-config';
 	import { spring } from 'svelte/motion';
 	import InfoText from './InfoText.svelte';
+	import { writable } from 'svelte/store';
 
 	export let width: number;
 	export let height: number;
 	export let isDragging = false;
 	let x = -width / 2;
 	let y = -height / 2;
-	export let position = spring({ x, y }, {stiffness:1,damping:1});
+	export let position = writable({ x, y });
 	function toGrid(x: number): number {
 		if ($useGrid) {
 			return Math.round(x / $gridSpacing) * $gridSpacing;
@@ -26,8 +26,8 @@
 	function handleDragStop(e: MouseEvent) {
 		console.debug('[NodeBase] Drag Stopped');
 		isDragging = false;
-        x = $position.x+width/2;
-        y = $position.y+width/2;
+        $position.x = toGrid(x);
+        $position.y = toGrid(y);
 	}
 
 	function handleMouseMove(e: MouseEvent) {
@@ -37,15 +37,20 @@
 		}
 	}
 	$: {
-        $useGrid;
-		$position = { x: toGrid(x) - width / 2, y: toGrid(y) - height / 2 };
+		if ($useGrid) {
+			$position = { x: toGrid(x), y: toGrid(y) };
+		} else {
+			$position = { x: x, y: y };
+		}
+		$position.x -= width / 2;
+		$position.y -= height / 2;
 	}
 </script>
 
 <!-- svelte-ignore missing-declaration -->
 <svg
-	x={Math.round($position.x)}
-	y={Math.round($position.y)}
+	x={$position.x}
+	y={$position.y}
 	class="overflow-visible"
 	on:mousedown={handleDragStart}
 	class:cursor-grabbing={isDragging}

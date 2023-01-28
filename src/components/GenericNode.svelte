@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { spring, type Spring } from 'svelte/motion';
+	import { writable } from 'svelte/store';
 	import { showIndices } from '../stores/global-config';
 	import InfoText from './InfoText.svelte';
 	import NodeBase from './NodeBase.svelte';
@@ -23,12 +24,7 @@
 		const port_spacing = (dimension + port_margin) / (num_ports + 1);
 		return (id + 1) * port_spacing - port_margin / 2;
 	}
-
-	let position: Spring<{ x: number; y: number }> = spring({ x: 0, y: 0 });
-    $: {
-        $node.x = $position.x;
-        $node.y = $position.y;
-    }
+	let position = writable({x:0, y:0});
 </script>
 
 <NodeBase {width} {height} bind:position>
@@ -71,10 +67,10 @@
 
 <InfoText
 	bind:show={$showIndices}
-	x={$position.x+width/2}
-	y={$position.y+height}
-    y_offset={0}
-    text_baseline={"hanging"}
+	x={$position.x + width / 2}
+	y={$position.y + height}
+	y_offset={0}
+	text_baseline={'hanging'}
 	classes={'fill-white stroke-black'}
 >
 	{$node.id}

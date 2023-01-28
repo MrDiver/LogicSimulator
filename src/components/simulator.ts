@@ -404,6 +404,8 @@ export class InPort extends Port {
     override disconnect(wire: Wire): void {
         console.debug(`[InPort${this.id}] Disconnecting from Wire${wire.id}`);
         super.disconnect(wire);
+    }
+    override postDisconnect(wire: Wire): void {
         this.writeValue(this, LogicValue.Z);
     }
     override getDrivers(w: Wire): Connector[] {

@@ -71,7 +71,7 @@
 		class:stroke-w_x={$wire.viewValue() === LogicValue.X}
 		class:stroke-w_z={$wire.viewValue() === LogicValue.Z}
 		class:opacity-25={$wire.viewValue() === LogicValue.Z}
-		class="fill-transparent stroke-[5] transition-colors"
+		class="fill-transparent stroke-[5] transition-colors duration-100"
 		class:dashed={is_hovering}
 		stroke-linecap="round"
 		d={genPath($conA.x, $conA.y, $conB.x, $conB.y)}
@@ -79,7 +79,7 @@
 </g>
 <InfoText
 	bind:show={$showIndices}
-	x={($conA.x + $conB.x) / 2}
+	x={($conA.x + getOffset(type_a) + $conB.x + getOffset(type_b)) / 2}
 	y={($conA.y + $conB.y) / 2}
 	classes={'fill-white stroke-black'}
 >

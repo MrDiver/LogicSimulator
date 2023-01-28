@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fade, fly } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import GenericNode from './GenericNode.svelte';
 	import { LogicValue, type Source } from './simulator';
 	export let abstract_node: Source;
@@ -14,12 +14,12 @@
 </script>
 
 <GenericNode
-	bind:width
-	bind:height
+	width={width}
+	height={height}
 	show_labels={false}
 	show_name={false}
 	on:cancel_port_connect
-	bind:abstract_node
+	abstract_node={abstract_node}
 >
 	{#key $out_pin.lastValue}
 		<g transition:fly={{ y: win_size, duration: 400 }}>

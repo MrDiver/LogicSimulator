@@ -6,6 +6,7 @@
 		secondaryConnectedPort
 	} from '../stores/global-config';
 	import GenericNode from './GenericNode.svelte';
+	import Inverter from './Inverter.svelte';
 	import * as LS from './simulator';
 	import Source from './Source.svelte';
 	import TmpWire from './TmpWire.svelte';
@@ -20,7 +21,7 @@
 	let inv1 = new LS.Inverter();
 	let inv2 = new LS.Inverter();
 
-	let current_primary_port_store = null;
+	let current_primary_port_store;
     function filterWires(wires: LS.Wire[]){
 	    return [...wires.filter((w) => w.id !== -1)];
     }
@@ -43,7 +44,7 @@
 {#each wires as wire (wire.id)}
 	<Wire on:updateWires={()=> {wires=filterWires(wires)}} wire_node={wire} />
 {/each}
-<GenericNode on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={inv1} />
-<GenericNode on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={inv2} />
+<Inverter on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={inv1} />
+<Inverter on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={inv2} />
 <Source on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={source1} />
 <TmpWire/>

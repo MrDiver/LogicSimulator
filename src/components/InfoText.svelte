@@ -22,6 +22,7 @@
 		font-family="sans"
 		text-anchor={text_anchor}
         font-size={font_size * $zoomLevel}
+        stroke-width={$zoomLevel}
 		dominant-baseline={text_baseline}
 		x={x + x_offset}
 		y={y + y_offset}

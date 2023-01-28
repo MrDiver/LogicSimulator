@@ -81,6 +81,7 @@ export abstract class Connector extends AutoUpdateView(IdBase(Object)) {
     abstract isDriving(): boolean;
     abstract connect(wire: Wire): void;
     abstract disconnect(wire: Wire): void;
+    abstract postDisconnect(wire: Wire): void;
     abstract readValue(caller: Wire | Component | Connector): LogicValue;
     abstract writeValue(caller: Wire | Component, v: LogicValue): void;
     abstract getDrivers(sender: Wire | Component): Connector[];
@@ -161,11 +162,11 @@ export class Wire extends AutoUpdateView(IdBase(Object)) {
             }
             if (count > 1) {
                 this.#lastValue = LogicValue.X;
-                conA.writeValue(this,this.#lastValue);
-                conB.writeValue(this,this.#lastValue);
+                conA.writeValue(this, this.#lastValue);
+                conB.writeValue(this, this.#lastValue);
             } else {
-                if(con)
-                con.writeValue(this,this.#lastValue);
+                if (con)
+                    con.writeValue(this, this.#lastValue);
             }
         }
 
@@ -175,7 +176,7 @@ export class Wire extends AutoUpdateView(IdBase(Object)) {
     }
     updateValue(source: Connector, v: LogicValue) {
         console.debug(`[Wire${this.id}] Value updated from Connector${source.id}`);
-        if (this.id === 0) return;
+        if (this.id === -1) return;
         if (this.#lastValue === v) {
             return;
         }
@@ -191,6 +192,8 @@ export class Wire extends AutoUpdateView(IdBase(Object)) {
         console.group(`[Wire${this.id}] Disconnecting all`);
         this.conA.disconnect(this);
         this.conB.disconnect(this);
+        this.conA.postDisconnect(this);
+        this.conB.postDisconnect(this);
         this.id = -1;
         this.#lastValue = LogicValue.Z;
         console.groupEnd();
@@ -198,7 +201,7 @@ export class Wire extends AutoUpdateView(IdBase(Object)) {
     }
     getDrivers(sender: Connector): Connector[] {
         console.debug(`[Wire${this.id}] Drivers Requested from Connector${sender.id}`);
-        if (this.id === 0) return [];
+        if (this.id === -1) return [];
         if (sender.id === this.conA.id) {
             return this.conB.getDrivers(this);
         } else if (sender.id === this.conB.id) {
@@ -263,6 +266,10 @@ class GeneralConnector extends Connector {
             this.connections.splice(idx, 1);
             idx = this.findWire(wire);
         }
+    }
+    postDisconnect(wire: Wire): void {
+        console.debug(`[Connector${this.id}] Post Process Disconnecting Wire${wire.id}`);
+        return;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     readValue(caller: Component | Wire | Connector): LogicValue {
@@ -333,14 +340,27 @@ export class OutPort extends Port {
         super(ConnectionType.OUT, port_id, port_name);
     }
     override writeValue(caller: Wire | Component, v: LogicValue): void {
-        if (caller instanceof Wire && this.type === ConnectionType.OUT) {
+        if (caller instanceof Wire) {
             console.debug(`[OutPort${this.id}] Skipping write from Caller${caller.id} Checking for invalidation`);
-            super.writeValue(caller, this.lastValue);
+            if(this.isDriving() && v!==LogicValue.Z){
+                super.spreadValue(LogicValue.X);
+            }
             return;
         }
+        console.debug(`[OutPort${this.id}] Accepting Write from Caller${caller.id} Checking for invalidation`);
         this.lock();
+        // let incoming = this.connections.map(w => w.getDrivers(this));
+        // let drivers = incoming.reduce((a,b) => a.concat(b));
+        // console.debug("%c ARRAY","color:red",drivers);
         super.writeValue(caller, v);
         this.unlock();
+    }
+    override disconnect(wire: Wire): void {
+        super.disconnect(wire);
+    }
+    override postDisconnect(wire: Wire): void {
+        console.debug(`[OutPort${this.id}] Post Processing Disconnecting Wire${wire.id}`);
+        this.spreadValue(this.lastValue);
     }
     override connect(w: Wire): void {
         console.debug(`[OutPort${this.id}] Connecting to Wire${w.id}`);

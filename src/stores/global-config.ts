@@ -10,4 +10,6 @@ export const isConnectingState: Writable<boolean> = writable(false);
 export const currentConnectedPort: Writable<Connector | null> = writable(null);
 export const secondaryConnectedPort: Writable<Connector | null> = writable(null);
 export const screenPosition: Writable<{x:number, y:number}> = writable({x:0,y:0});
+export const screenSize: Writable<{x:number, y:number}> = writable({x:0,y:0});
 export const mouseInsideLogic: Writable<{x:number, y:number}> = writable({x:0,y:0});
+export const shouldSave:Writable<boolean>=writable(false);

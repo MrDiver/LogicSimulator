@@ -1,13 +1,11 @@
 <script lang="ts">
-	import NodeBase from './NodeBase.svelte';
-	import GenericNode from './GenericNode.svelte';
 	import NodeManager from './NodeManager.svelte';
     import {spring} from 'svelte/motion';
-	import { currentConnectedPort, mouseInsideLogic, screenPosition, secondaryConnectedPort, zoomLevel } from '../stores/global-config';
+	import { currentConnectedPort, mouseInsideLogic, screenPosition, screenSize, secondaryConnectedPort, shouldSave, zoomLevel } from '../stores/global-config';
 
 	let pos_x = 0;
 	let pos_y = 0;
-    let pos_spring = spring({x:0,y:0},{stiffness: 0.1, damping:0.5});
+    let pos_spring = spring({x:0,y:0},{stiffness: 0.5, damping:0.5});
     $: pos_spring.set({x:pos_x, y:pos_y});
 	let zoom = spring(1);
 	let width: number;
@@ -55,6 +53,7 @@
 		vy = $pos_spring.y - halfH;
 		vw = 2 * halfW;
 		vh = 2 * halfH;
+        $screenSize = {x: vw, y:vh};
         $screenPosition = {x:vx, y:vy};
 	}
 </script>
@@ -85,7 +84,7 @@
 	</svg>
 	<div
 		id="infopanel"
-		class="bg-[rgb(255,255,255,0.7)] p-2 rounded-lg absolute top-3 left-3 text-xl font-mono"
+		class="pointer-events-none bg-[rgb(255,255,255,0.7)] p-2 rounded-lg absolute top-3 left-3 text-xl font-mono"
 	>
 		<p>Position x:{Math.round($pos_spring.x)} y:{Math.round($pos_spring.y)}</p>
 		<p>Size w:{width} h:{height}</p>
@@ -93,7 +92,13 @@
 		<p>Primary: {$currentConnectedPort !== null ? $currentConnectedPort.id : 'null'}</p>
 		<p>Secondary: {$secondaryConnectedPort !== null ? $secondaryConnectedPort.id : 'null'}</p>
 	</div>
-	<canvas />
+	<div
+		id="save-button"
+        on:mousedown={(e)=>{$shouldSave = true}}
+		class="transition-all hover:scale-110  border-2 hover:border-blue-500 bg-[rgb(255,255,255,0.7)] p-2 rounded-lg absolute top-3 right-3 text-xl font-mono"
+	>
+        <p>save</p>
+	</div>
 </div>
 
 <style>

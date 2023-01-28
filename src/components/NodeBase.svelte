@@ -1,16 +1,22 @@
 <script lang="ts">
 	import { showPositions, useGrid } from '../stores/global-config';
 	import { zoomLevel, gridSpacing } from '../stores/global-config';
-	import { spring } from 'svelte/motion';
+	import { spring, tweened } from 'svelte/motion';
+	import { cubicInOut, quadInOut } from 'svelte/easing';
 	import InfoText from './InfoText.svelte';
 	import { writable } from 'svelte/store';
 
 	export let width: number;
 	export let height: number;
 	export let isDragging = false;
-	let x = -width / 2;
-	let y = -height / 2;
-	export let position = writable({ x, y });
+    export let init_x;
+    export let init_y;
+	let x = init_x;
+	let y = init_y;
+	export let position = { x, y };
+	let sp = spring({ x, y }, { stiffness: 0.5, damping: 0.5 });
+	//let sp = tweened({ x, y }, {duration: 50, easing: quadInOut});
+	$: position = $sp;
 	function toGrid(x: number): number {
 		if ($useGrid) {
 			return Math.round(x / $gridSpacing) * $gridSpacing;
@@ -26,8 +32,8 @@
 	function handleDragStop(e: MouseEvent) {
 		console.debug('[NodeBase] Drag Stopped');
 		isDragging = false;
-        $position.x = toGrid(x);
-        $position.y = toGrid(y);
+		x = $sp.x;
+		y = $sp.y;
 	}
 
 	function handleMouseMove(e: MouseEvent) {
@@ -38,19 +44,17 @@
 	}
 	$: {
 		if ($useGrid) {
-			$position = { x: toGrid(x), y: toGrid(y) };
+			$sp = { x: toGrid(x), y: toGrid(y) };
 		} else {
-			$position = { x: x, y: y };
+			$sp = { x: x, y: y };
 		}
-		$position.x -= width / 2;
-		$position.y -= height / 2;
 	}
 </script>
 
 <!-- svelte-ignore missing-declaration -->
 <svg
-	x={$position.x}
-	y={$position.y}
+	x={$sp.x}
+	y={$sp.y}
 	class="overflow-visible"
 	on:mousedown={handleDragStart}
 	class:cursor-grabbing={isDragging}
@@ -65,8 +69,11 @@
 		text_baseline="bottom"
 		bind:show={$showPositions}
 	>
-		x: {Math.round($position.x)} y: {Math.round($position.y)}
+		x: {Math.round($sp.x)} y: {Math.round($sp.y)}
 	</InfoText>
+	{#if $showPositions}
+		<circle class="fill-red-500" cx="0" cy="0" r="2" />
+	{/if}
 </svg>
 
 <svelte:window on:mouseup={handleDragStop} on:mousemove={handleMouseMove} />

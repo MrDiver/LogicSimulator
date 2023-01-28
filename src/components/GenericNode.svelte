@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { spring, type Spring } from 'svelte/motion';
-	import { writable } from 'svelte/store';
+	import { writable, type Writable } from 'svelte/store';
 	import { showIndices } from '../stores/global-config';
 	import InfoText from './InfoText.svelte';
 	import NodeBase from './NodeBase.svelte';
@@ -15,7 +13,7 @@
 	const node = abstract_node.getStore();
 	let in_ports = $node.in_pins.length;
 	let out_ports = $node.out_pins.length;
-	const port_margin = 25;
+	const port_margin = 26;
 
 	export let width = 80;
 	export let height = (Math.max(in_ports, out_ports) + 2) * port_margin;
@@ -24,12 +22,26 @@
 		const port_spacing = (dimension + port_margin) / (num_ports + 1);
 		return (id + 1) * port_spacing - port_margin / 2;
 	}
-	let position = writable({x:0, y:0});
+	let position = { x: abstract_node.x, y: abstract_node.y };
+    console.log("set position")
+    $: {
+        console.log("update node position")
+        abstract_node.x = position.x;
+        abstract_node.y = position.y;
+    }
 </script>
 
-<NodeBase {width} {height} bind:position>
+<NodeBase init_x={abstract_node.x} init_y={abstract_node.y} {width} {height} bind:position>
 	<slot>
-		<rect class="fill-white stroke-black stroke-2" x="0" y="0" rx="10" ry="10" {width} {height} />
+		<rect
+			class="fill-white stroke-black stroke-2"
+			x={-width / 2}
+			y={-height / 2}
+			rx="10"
+			ry="10"
+			{width}
+			{height}
+		/>
 	</slot>
 
 	{#if show_name}
@@ -37,8 +49,8 @@
 			class="fill-gray-500"
 			dominant-baseline="hanging"
 			text-anchor="middle"
-			x={width / 2}
-			y={2}
+			x={0}
+			y={2-height/2}
 		>
 			{abstract_node.name}
 		</text>
@@ -50,8 +62,8 @@
 		on:cancel_port_connect
 		bind:port_node={port}
 		bind:show_labels
-		pos_x={$position.x + 0}
-		pos_y={$position.y + calc_port(i, in_ports, height)}
+		pos_x={position.x - width / 2}
+		pos_y={position.y + calc_port(i, in_ports, height) - height / 2}
 	/>
 {/each}
 {#each $node.out_pins as port, i}
@@ -60,15 +72,15 @@
 		on:cancel_port_connect
 		bind:port_node={port}
 		bind:show_labels
-		pos_x={$position.x + width}
-		pos_y={$position.y + calc_port(i, out_ports, height)}
+		pos_x={position.x + width / 2}
+		pos_y={position.y + calc_port(i, out_ports, height) - height / 2}
 	/>
 {/each}
 
 <InfoText
 	bind:show={$showIndices}
-	x={$position.x + width / 2}
-	y={$position.y + height}
+	x={position.x}
+	y={position.y + height / 2}
 	y_offset={0}
 	text_baseline={'hanging'}
 	classes={'fill-white stroke-black'}

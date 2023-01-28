@@ -87,6 +87,7 @@ export abstract class Connector extends AutoUpdateView(IdBase(Object)) {
     abstract getDrivers(sender: Wire | Component): Connector[];
 }
 
+
 export abstract class Component extends AutoUpdateView(IdBase(Object)) {
     name: string;
     in_pins: InPort[];
@@ -117,7 +118,7 @@ export abstract class Component extends AutoUpdateView(IdBase(Object)) {
         if (0 <= index && index < this.out_pins.length) {
             return this.out_pins[index];
         }
-        throw RangeError(`The value ${index} is not in Range for Component ${this.name} with ${this.out_pins.length} Inputs`);
+        throw RangeError(`The value ${index} is not in Range for Component ${this.name} with ${this.out_pins.length} Outputs`);
     }
     internalCallback(source: Connector) {
         console.debug(`[Component(${this.name})${this.id}] Update triggered by Input Connector${source.id}`)
@@ -413,6 +414,20 @@ export class InPort extends Port {
     }
 }
 
+export interface WireDto{
+    id: number;
+    a_id:number;
+    b_id:number;
+}
+
+export interface ComponentDto{
+    x: number;
+    y: number;
+    id: number;
+    type: string;
+    in_pins: {id: number, val: LogicValue}[];
+    out_pins: {id: number, val: LogicValue}[];
+}
 
 //----------------------------------------------------
 //

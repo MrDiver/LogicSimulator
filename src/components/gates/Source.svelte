@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import GenericNode from './GenericNode.svelte';
-	import { LogicValue, type Source } from './simulator';
+	import GenericNode from '../GenericNode.svelte';
+	import { LogicValue, type Source } from '../simulator';
 	export let abstract_node: Source;
 	const node = abstract_node.getStore();
 	const out_pin = abstract_node.getOutput(0).getStore();
@@ -14,12 +14,12 @@
 </script>
 
 <GenericNode
-	width={width}
-	height={height}
+	{width}
+	{height}
 	show_labels={false}
 	show_name={false}
 	on:cancel_port_connect
-	abstract_node={abstract_node}
+	{abstract_node}
 >
 	{#key $out_pin.lastValue}
 		<g transition:fly={{ y: win_size, duration: 400 }}>
@@ -30,8 +30,8 @@
 				class:fill-w_x={$out_pin.lastValue === LogicValue.X}
 				class:fill-w_z={$out_pin.lastValue === LogicValue.Z}
 				class:opacity-25={$out_pin.lastValue === LogicValue.Z}
-				x={width / 2 - win_size / 2}
-				y={-win_size}
+				x={-win_size / 2}
+				y={-win_size - height / 2}
 				width={win_size}
 				height={win_size}
 			/>
@@ -41,12 +41,20 @@
 				font-family="mono"
 				text-anchor="middle"
 				dominant-baseline="middle"
-				x={width / 2}
-				y={-win_size / 2}>{$out_pin.lastValue}</text
+				x={0}
+				y={-height / 2 - win_size / 2}>{$out_pin.lastValue}</text
 			>
 		</g>
 	{/key}
-	<rect class="fill-slate-700/30 stroke-black stroke-2" rx="10" ry="10" {width} {height} />
+	<rect
+		class="fill-slate-700/30 stroke-black stroke-2"
+		rx="10"
+		ry="10"
+		x={-width / 2}
+		y={-height / 2}
+		{width}
+		{height}
+	/>
 	{#each [LogicValue.Z, LogicValue.X, LogicValue.LOW, LogicValue.HIGH] as lv, i}
 		<g
 			class="hover:fill-blue-500 fill-gray-700 transition duration-100 ease-in-out cursor-pointer"
@@ -56,15 +64,21 @@
 		>
 			<rect
 				class="stroke-black stroke-2"
-				x={((i % 2) * (width - button_margin)) / 2 + button_margin / 2}
-				y={(+(i > 1) * (height - button_margin)) / 2 + button_margin / 2}
+				x={((i % 2) * (width - button_margin)) / 2 + button_margin / 2 - width / 2}
+				y={(+(i > 1) * (height - button_margin)) / 2 + button_margin / 2 - height / 2}
 				width={button_size}
 				height={button_size}
 			/>
 			<text
 				class="fill-white"
-				x={((i % 2) * (width - button_margin)) / 2 + button_margin / 2 + button_size / 2}
-				y={(+(i > 1) * (height - button_margin)) / 2 + button_margin / 2 + button_size / 2}
+				x={((i % 2) * (width - button_margin)) / 2 +
+					button_margin / 2 +
+					button_size / 2 -
+					width / 2}
+				y={(+(i > 1) * (height - button_margin)) / 2 +
+					button_margin / 2 +
+					button_size / 2 -
+					height / 2}
 				font-size={20}
 				font-family="mono"
 				text-anchor="middle"

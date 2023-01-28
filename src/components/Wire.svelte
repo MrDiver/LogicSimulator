@@ -73,7 +73,7 @@
 		class:opacity-25={$wire.viewValue() === LogicValue.Z}
 		class="fill-transparent stroke-[5] transition-colors duration-100"
 		class:dashed={is_hovering}
-		stroke-linecap="round"
+		stroke-linecap={is_hovering?"round":"inherit"}
 		d={genPath($conA.x, $conA.y, $conB.x, $conB.y)}
 	/>
 </g>

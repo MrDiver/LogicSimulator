@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { spring, type Spring } from 'svelte/motion';
+	import { showIndices } from '../stores/global-config';
+	import InfoText from './InfoText.svelte';
 	import NodeBase from './NodeBase.svelte';
 	import NodePort from './NodePort.svelte';
 	import type { Component } from './simulator';
@@ -66,3 +68,14 @@
 		pos_y={$position.y + calc_port(i, out_ports, height)}
 	/>
 {/each}
+
+<InfoText
+	bind:show={$showIndices}
+	x={$position.x+width/2}
+	y={$position.y+height}
+    y_offset={0}
+    text_baseline={"hanging"}
+	classes={'fill-white stroke-black'}
+>
+	{$node.id}
+</InfoText>

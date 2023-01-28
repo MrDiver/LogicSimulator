@@ -85,7 +85,6 @@
 			is_connected = $port.connections.length > 0;
 		}
 	}
-	let circ: Element;
 </script>
 
 <svelte:window on:mouseup={handleMouseUp} />
@@ -94,7 +93,6 @@
 	<circle
 		use:tooltip
 		data-tooltip={genTooltip('Value: ' + $port.lastValue, 'Driver: ' + $port.isDriving())}
-		bind:this={circ}
 		id={port_node.port_name}
 		class="{is_connected
 			? 'fill-transparent'

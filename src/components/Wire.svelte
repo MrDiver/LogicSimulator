@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
+	import { createEventDispatcher } from 'svelte';
 	import { showIndices, zoomLevel } from '../stores/global-config';
 	import InfoText from './InfoText.svelte';
 	import { ConnectionType, LogicValue, type Connector, type Wire } from './simulator';
@@ -42,17 +43,19 @@
               ${bx + offset_b} ${by}
               ${bx} ${by}`;
 	}
+    const dispatch = createEventDispatcher();
 </script>
 
+<!-- use:tooltip -->
+<!-- data-tooltip={genTooltip(
+    'Value: ' + $wire.viewValue(),
+    'A: ' + $wire.conA.id,
+    'B: ' + $wire.conB.id
+ )}-->
 <g
-	use:tooltip
-	data-tooltip={genTooltip(
-		'Value: ' + $wire.viewValue(),
-		'A: ' + $wire.conA.id,
-		'B: ' + $wire.conB.id
-	)}
 	on:mouseenter={(e) => (is_hovering = true)}
 	on:mouseleave={(e) => (is_hovering = false)}
+    on:mousedown={e => {$wire.disconnectAll(); dispatch('updateWires',{})}}
 >
 	<path
 		class="{is_hovering ? 'stroke-yellow-500/60' : 'stroke-transparent'}

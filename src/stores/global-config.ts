@@ -1,7 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { Connector } from "../components/simulator";
 
-
 export const showPositions: Writable<boolean> = writable(false);
 export const showIndices: Writable<boolean> = writable(false);
 export const zoomLevel: Writable<number> = writable(1.0);

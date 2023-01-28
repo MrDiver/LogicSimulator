@@ -21,11 +21,14 @@
 	let inv2 = new LS.Inverter();
 
 	let current_primary_port_store = null;
+    function filterWires(wires: LS.Wire[]){
+	    return [...wires.filter((w) => w.id !== -1)];
+    }
 	function handleCancelPortConnect(e: CustomEvent<null>) {
 		// console.log($currentConnectedPort, $secondaryConnectedPort);
 		if ($currentConnectedPort !== null && $secondaryConnectedPort !== null) {
 			let w = new LS.Wire($currentConnectedPort, $secondaryConnectedPort);
-			const _wires = [...wires.filter((w) => w.id !== -1), w];
+			const _wires = [...filterWires(wires), w];
             wires = _wires;
 		} else {
 			console.log('CANCEL CONNECTING');
@@ -38,7 +41,7 @@
 </script>
 
 {#each wires as wire (wire.id)}
-	<Wire wire_node={wire} />
+	<Wire on:updateWires={()=> {wires=filterWires(wires)}} wire_node={wire} />
 {/each}
 <GenericNode on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={inv1} />
 <GenericNode on:cancel_port_connect={handleCancelPortConnect} bind:abstract_node={inv2} />

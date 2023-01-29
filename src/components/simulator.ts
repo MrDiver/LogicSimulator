@@ -146,6 +146,7 @@ export class Wire extends CompositeClass {
     conB: ConnectorID;
     constructor(lm: LM, conA: ConnectorID, conB: ConnectorID) {
         super(lm);
+        lm.addWire(this);
         console.debug(`[Wire${this.id}] Constructing Wire (Connector${conA}, Connector${conB}`);
         this.conA = conA;
         this.conB = conB;
@@ -156,29 +157,25 @@ export class Wire extends CompositeClass {
         this.lastValue = LogicValue.Z;
         const a = nodeA.readValue(this.id);
         const b = nodeB.readValue(this.id);
-        if (a !== b) {
-            let count = 0
-            let con: Connector | null = null;
-            if (a !== LogicValue.Z) {
-                this.lastValue = a;
-                count++;
-                con = nodeB;
-            }
-            if (b !== LogicValue.Z) {
-                this.lastValue = b;
-                count++;
-                con = nodeA;
-            }
-            if (count > 1) {
-                this.lastValue = LogicValue.X;
-                nodeA.writeValue(this.id, this.lastValue);
-                nodeB.writeValue(this.id, this.lastValue);
-            } else {
-                if (con)
-                    con.writeValue(this.id, this.lastValue);
-            }
-        }else{
+        let count = 0
+        let con: Connector | null = null;
+        if (a !== LogicValue.Z) {
             this.lastValue = a;
+            count++;
+            con = nodeB;
+        }
+        if (b !== LogicValue.Z) {
+            this.lastValue = b;
+            count++;
+            con = nodeA;
+        }
+        if (count > 1) {
+            this.lastValue = LogicValue.X;
+            nodeA.writeValue(this.id, this.lastValue);
+            nodeB.writeValue(this.id, this.lastValue);
+        } else {
+            if (con)
+                con.writeValue(this.id, this.lastValue);
         }
         this.triggerUpdateSelf();
     }
@@ -309,7 +306,9 @@ class GeneralConnector extends Connector {
             this.triggerUpdateSelf();
             for (const wire of this.connections) {
                 if (wire !== caller) {
+                    this.lock();
                     this.lm.getWire(wire).updateValue(this.id, v)
+                    this.lock();
                 }
             }
         }
@@ -578,7 +577,7 @@ export class LM {
             return -1;
         }
         const wire = new Wire(this, c1, c2);
-        this.addWire(wire);
+        this.filterWires();
         return wire.id;
     }
     createInPort(port_id: number, port_name: string, callback: (caller: ConnectorID) => void, id: number | null = null): ConnectorID {
@@ -628,7 +627,7 @@ export class LM {
         }
         return { wires, components, connectors };
     }
-    fromDto(dto: LMDto): void{
+    fromDto(dto: LMDto): void {
         console.debug("DTO", dto);
         this.wires.clear();
         this.components.clear();
@@ -642,7 +641,7 @@ export class LM {
                 case ConnectionType.OUT: pid = this.createOutPort((c.value as OutPort).port_id, (c.value as InPort).port_name, c.value.id); break;
                 case ConnectionType.INOUT: pid = this.createConnector(MultiConnect, c.value.id); break;
             }
-            if(pid != c.value.id){
+            if (pid != c.value.id) {
                 throw Error("Something went terribly wrong here");
             }
             const pin = this.getConnector(pid);
@@ -667,9 +666,9 @@ export class LM {
             new_node.in_pins = c.value.in_pins;
             new_node.out_pins = c.value.out_pins;
 
-            new_node.in_pins.forEach(p=>{
+            new_node.in_pins.forEach(p => {
                 const pin = this.getConnector(p);
-                if(pin.type === ConnectionType.IN){
+                if (pin.type === ConnectionType.IN) {
                     (pin as InPort).callback = new_node.onInputChange.bind(new_node);
                 }
             })

@@ -1,7 +1,8 @@
 <script lang="ts">
 	import NodeManager from './NodeManager.svelte';
     import {spring} from 'svelte/motion';
-	import { currentConnectedPort, mouseInsideLogic, screenPosition, screenSize, secondaryConnectedPort, shouldSave, zoomLevel } from '../stores/global-config';
+	import { currentConnectedPort, lm, mouseInsideLogic, screenPosition, screenSize, secondaryConnectedPort, shouldSave, zoomLevel } from '../stores/global-config';
+	import { LM } from './simulator';
 
 	let pos_x = 0;
 	let pos_y = 0;
@@ -92,13 +93,24 @@
 		<p>Primary: {$currentConnectedPort !== null ? $currentConnectedPort.id : 'null'}</p>
 		<p>Secondary: {$secondaryConnectedPort !== null ? $secondaryConnectedPort.id : 'null'}</p>
 	</div>
-	<div
-		id="save-button"
-        on:mousedown={(e)=>{shouldSave.set(true)}}
-		class="transition-all hover:scale-110  border-2 hover:border-blue-500 bg-[rgb(255,255,255,0.7)] p-2 rounded-lg absolute top-3 right-3 text-xl font-mono"
-	>
-        <p>save</p>
-	</div>
+    <div class="absolute top-3 right-3 flex gap-3">
+        <div
+            id="save-button"
+            on:mousedown={(e)=>{shouldSave.set(true)}}
+            class="transition-all hover:scale-110  border-2 hover:border-blue-500 border-slate-500/60 bg-white/60 p-2 rounded-lg text-xl font-mono"
+        >
+            <p>save</p>
+        </div>
+        <div
+            id="save-button"
+            on:mousedown={(e)=>{
+                window.localStorage.clear();
+            }}
+            class="transition-all hover:scale-110  border-2 hover:border-blue-500 border-slate-500/60 bg-white/60 p-2 rounded-lg text-xl font-mono"
+        >
+            <p>clear</p>
+        </div>
+    </div>
 </div>
 
 <style>

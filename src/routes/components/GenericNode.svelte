@@ -8,38 +8,58 @@
 
 	// Attributes
 	export let abstract_node: Component;
-	export let show_name = true;
-	export let show_labels = true;
 	const node = abstract_node.getStore();
 	let in_ports = $node.in_pins.length;
 	let out_ports = $node.out_pins.length;
 	const port_margin = 26;
 
-	export let width = 80;
-	export let height = (Math.max(in_ports, out_ports) + 2) * port_margin;
+	export let show_name = abstract_node.showNames;
+	export let show_labels = abstract_node.showLabels;
+
+	const hasAppearance = $node.appearance !== '';
+	export let width = $node.width;
+	export let height = hasAppearance
+		? $node.height
+		: (Math.max(in_ports, out_ports) + 2) * port_margin;
+	export let viewHeight = $node.viewHeight;
+	export let viewWidth = $node.viewWidth;
 
 	function calc_port(id: number, num_ports: number, dimension: number) {
 		const port_spacing = (dimension + port_margin) / (num_ports + 1);
 		return (id + 1) * port_spacing - port_margin / 2;
 	}
 	let position = { x: abstract_node.x, y: abstract_node.y };
-    $: {
-        abstract_node.x = position.x;
-        abstract_node.y = position.y;
-    }
+	$: {
+		abstract_node.x = position.x;
+		abstract_node.y = position.y;
+	}
 </script>
 
-<NodeBase init_x={abstract_node.x} init_y={abstract_node.y} {width} {height} bind:position>
+<NodeBase
+	init_x={abstract_node.x}
+	init_y={abstract_node.y}
+	{width}
+	{height}
+	{viewHeight}
+	{viewWidth}
+	bind:position
+>
 	<slot>
-		<rect
-			class="fill-white stroke-black stroke-2"
-			x={-width / 2}
-			y={-height / 2}
-			rx="10"
-			ry="10"
-			{width}
-			{height}
-		/>
+		{#if $node.appearance != ''}
+			<g style="transform:translate({-width / 2}px, {-height / 2}px)">
+				{@html $node.appearance}
+			</g>
+		{:else}
+			<rect
+				class="fill-white stroke-black stroke-2"
+				x={-viewWidth / 2}
+				y={-viewHeight / 2}
+				rx="10"
+				ry="10"
+				{width}
+				{height}
+			/>
+		{/if}
 	</slot>
 
 	{#if show_name}
@@ -48,7 +68,7 @@
 			dominant-baseline="hanging"
 			text-anchor="middle"
 			x={0}
-			y={2-height/2}
+			y={2 - height / 2}
 		>
 			{abstract_node.name}
 		</text>

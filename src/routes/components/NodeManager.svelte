@@ -56,12 +56,11 @@
 	}
 
 	function onSaveButton() {
-		console.debug('[NodeManager] Saving');
+		console.info('[NodeManager] Saving');
         const save_string = JSON.stringify($lm.getDto(), function replacer(key, value){
             return (key === 'lm') ? undefined : value
         })
 		window.localStorage.setItem('component_store', save_string);
-        loadFromSave(save_string);
 	}
 	$: {
 		if ($shouldSave) {
@@ -100,9 +99,9 @@
 	/>
 {/each}
 {#each components as c (c.id)}
-	{#if c instanceof LS.Inverter}
-		<Inverter on:cancel_port_connect={handleCancelPortConnect} abstract_node={c} />
-	{:else if c instanceof LS.Source}
+	<!--{#if c instanceof LS.Inverter}-->
+	<!-- <Inverter on:cancel_port_connect={handleCancelPortConnect} abstract_node={c} /> -->
+	{#if c instanceof LS.Source}
 		<Source on:cancel_port_connect={handleCancelPortConnect} abstract_node={c} />
 	{:else if c instanceof LS.Sink}
 		<Sink on:cancel_port_connect={handleCancelPortConnect} abstract_node={c} />

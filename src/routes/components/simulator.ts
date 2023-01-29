@@ -95,6 +95,13 @@ export abstract class Connector extends CompositeClass {
 }
 
 export abstract class Component extends CompositeClass {
+    appearance: string;
+    viewWidth: number;
+    viewHeight: number;
+    width: number;
+    height: number;
+    showNames: boolean;
+    showLabels: boolean;
     name: string;
     in_pins: ConnectorID[];
     out_pins: ConnectorID[];
@@ -103,6 +110,13 @@ export abstract class Component extends CompositeClass {
         this.name = name;
         this.in_pins = [];
         this.out_pins = [];
+        this.appearance="";
+        this.showNames = false;
+        this.showLabels = false;
+        this.viewWidth = 90;
+        this.viewHeight = 90;
+        this.width = 80;
+        this.height = 80;
     }
     protected addInputPin(name = '') {
         console.debug(`[Component(${this.name})${this.id}] Add Input Pin`)
@@ -487,6 +501,16 @@ export class Inverter extends Component {
         super(lm, 'Inverter');
         this.addInputPin('Q');
         this.addOutputPin('Q\'');
+        this.appearance = `
+            <g class="fill-slate-500/40 stroke-2 stroke-black">
+            <path d="M75.3021 47.6156L4.2193 87.546C2.2195 88.6694 -0.249997 87.2242 -0.249996 84.9305L-0.249993 5.06953C-0.249993 2.77581 2.2195 1.33058 4.21929 2.45396L75.302 42.3844C77.343 43.5309 77.343 46.4691 75.3021 47.6156Z"/>
+            <circle fill="white" cx="82" cy="45" r="7" />
+            </g>
+        `
+        this.height=90
+        this.width=80
+        this.viewHeight=92
+        this.viewWidth=96
     }
     override onInputChange(source: ConnectorID): void {
         const in_pin = this.getInput(0);
@@ -665,6 +689,8 @@ export class LM {
             new_node.y = c.value.y;
             new_node.in_pins = c.value.in_pins;
             new_node.out_pins = c.value.out_pins;
+            if(construct.name === "Unknown")
+                new_node.appearance = c.value.appearance;
 
             new_node.in_pins.forEach(p => {
                 const pin = this.getConnector(p);

@@ -43,6 +43,7 @@
 	"dependencies": {
 		"@sveltejs/adapter-static": "^1.0.5",
 		"ansi-colors": "^4.1.3",
+		"svelte-adapter-github": "^1.0.0-next.0",
 		"svelte-portal": "^2.2.0",
 		"two.js": "^0.8.10",
 		"winston": "^3.8.2"

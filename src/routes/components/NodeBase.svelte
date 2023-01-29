@@ -8,9 +8,11 @@
 
 	export let width: number;
 	export let height: number;
+	export let viewWidth: number;
+	export let viewHeight: number;
 	export let isDragging = false;
-    export let init_x;
-    export let init_y;
+	export let init_x;
+	export let init_y;
 	let x = init_x;
 	let y = init_y;
 	export let position = { x, y };
@@ -53,9 +55,11 @@
 
 <!-- svelte-ignore missing-declaration -->
 <svg
-	x={$sp.x}
-	y={$sp.y}
-	class="overflow-visible"
+	x={$sp.x - viewWidth / 2}
+	y={$sp.y - viewHeight / 2}
+	viewBox="{-viewWidth / 2} {-viewHeight / 2} {viewWidth + 2} {viewHeight}"
+	width={viewWidth}
+	height={viewHeight}
 	on:mousedown={handleDragStart}
 	class:cursor-grabbing={isDragging}
 	class:cursor-grab={!isDragging}

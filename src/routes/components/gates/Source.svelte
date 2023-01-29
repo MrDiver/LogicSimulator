@@ -15,7 +15,8 @@
 
 <GenericNode
 	{width}
-	{height}
+	height={height}
+    viewHeight={height+2*win_size}
 	show_labels={false}
 	show_name={false}
 	on:cancel_port_connect

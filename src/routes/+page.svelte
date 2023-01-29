@@ -1,6 +1,6 @@
 <script lang="ts">
-    import LogicViewer from '../components/LogicViewer.svelte';
-    import OptionsMenu from '../components/OptionsMenu.svelte';
+    import LogicViewer from './components/LogicViewer.svelte';
+    import OptionsMenu from './components/OptionsMenu.svelte';
 </script>
 
 <div class="flex flex-col h-full">

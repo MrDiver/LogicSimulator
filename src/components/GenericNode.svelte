@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { writable, type Writable } from 'svelte/store';
-	import { showIndices } from '../stores/global-config';
+	import { lm, showIndices } from '../stores/global-config';
 	import InfoText from './InfoText.svelte';
 	import NodeBase from './NodeBase.svelte';
 	import NodePort from './NodePort.svelte';
@@ -23,9 +23,7 @@
 		return (id + 1) * port_spacing - port_margin / 2;
 	}
 	let position = { x: abstract_node.x, y: abstract_node.y };
-    console.log("set position")
     $: {
-        console.log("update node position")
         abstract_node.x = position.x;
         abstract_node.y = position.y;
     }
@@ -60,7 +58,7 @@
 	<NodePort
 		on:start_port_connect
 		on:cancel_port_connect
-		bind:port_node={port}
+		port_node={$lm.getInPort(port)}
 		bind:show_labels
 		pos_x={position.x - width / 2}
 		pos_y={position.y + calc_port(i, in_ports, height) - height / 2}
@@ -70,7 +68,7 @@
 	<NodePort
 		on:start_port_connect
 		on:cancel_port_connect
-		bind:port_node={port}
+		port_node={$lm.getOutPort(port)}
 		bind:show_labels
 		pos_x={position.x + width / 2}
 		pos_y={position.y + calc_port(i, out_ports, height) - height / 2}

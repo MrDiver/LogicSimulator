@@ -17,7 +17,7 @@ describe('Wire', () => {
         const g1 = new MultiConnect();
         const g2 = new MultiConnect();
         const w = new Wire(g1, g2);
-        expect(w.viewValue()).toEqual(LogicValue.Z);
+        expect(w.readValue()).toEqual(LogicValue.Z);
     })
 
     it('updateValue', () => {
@@ -25,7 +25,7 @@ describe('Wire', () => {
         const g2 = new MultiConnect();
         const w = new Wire(g1, g2);
         w.updateValue(g1, LogicValue.X);
-        expect(w.viewValue()).toEqual(LogicValue.X);
+        expect(w.readValue()).toEqual(LogicValue.X);
         expect(g1.readValue(w)).toEqual(LogicValue.Z)
         expect(g2.readValue(w)).toEqual(LogicValue.X)
         w.updateValue(g2, LogicValue.HIGH);
@@ -83,7 +83,7 @@ describe('MultiConnect', () => {
         const w1 = new Wire(g1, g2);
         g1.writeValue(null as unknown as Wire, LogicValue.HIGH);
         expect(g1.lastValue).toEqual(LogicValue.HIGH);
-        expect(w1.viewValue()).toEqual(LogicValue.HIGH);
+        expect(w1.readValue()).toEqual(LogicValue.HIGH);
         expect(g2.lastValue).toEqual(LogicValue.HIGH);
     })
 })

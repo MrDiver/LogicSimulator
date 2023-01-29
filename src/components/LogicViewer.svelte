@@ -94,7 +94,7 @@
 	</div>
 	<div
 		id="save-button"
-        on:mousedown={(e)=>{$shouldSave = true}}
+        on:mousedown={(e)=>{shouldSave.set(true)}}
 		class="transition-all hover:scale-110  border-2 hover:border-blue-500 bg-[rgb(255,255,255,0.7)] p-2 rounded-lg absolute top-3 right-3 text-xl font-mono"
 	>
         <p>save</p>

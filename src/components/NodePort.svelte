@@ -3,6 +3,7 @@
 	import {
 		currentConnectedPort,
 		isConnectingState,
+		lm,
 		secondaryConnectedPort,
 		showIndices,
 		showPositions,

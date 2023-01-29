@@ -1,14 +1,14 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
 	import { createEventDispatcher } from 'svelte';
-	import { showIndices, zoomLevel } from '../stores/global-config';
+	import { lm, showIndices, zoomLevel } from '../stores/global-config';
 	import InfoText from './InfoText.svelte';
 	import { ConnectionType, LogicValue, type Connector, type Wire } from './simulator';
 	import { genTooltip, tooltip } from './tooltip';
 	export let wire_node: Wire;
 	const wire: Writable<Wire> = wire_node.getStore();
-	const conA = $wire.conA.getStore();
-	const conB = $wire.conB.getStore();
+	const conA = $lm.getConnector($wire.conA).getStore();
+	const conB = $lm.getConnector($wire.conB).getStore();
 	// Do fancy Hovering thing
 	let is_hovering = false;
 
@@ -57,6 +57,7 @@
 	on:mouseleave={(e) => (is_hovering = false)}
     on:mousedown={e => {$wire.disconnectAll(); dispatch('updateWires',{})}}
 >
+    <title>{$wire.lastValue}</title>
 	<path
 		class="{is_hovering ? 'stroke-yellow-500/60' : 'stroke-transparent'}
     transition-colors"
@@ -66,11 +67,11 @@
 	/>
 
 	<path
-		class:stroke-w_high={$wire.viewValue() === LogicValue.HIGH}
-		class:stroke-w_low={$wire.viewValue() === LogicValue.LOW}
-		class:stroke-w_x={$wire.viewValue() === LogicValue.X}
-		class:stroke-w_z={$wire.viewValue() === LogicValue.Z}
-		class:opacity-25={$wire.viewValue() === LogicValue.Z}
+		class:stroke-w_high={$wire.lastValue === LogicValue.HIGH}
+		class:stroke-w_low={$wire.lastValue === LogicValue.LOW}
+		class:stroke-w_x={$wire.lastValue === LogicValue.X}
+		class:stroke-w_z={$wire.lastValue === LogicValue.Z}
+		class:opacity-25={$wire.lastValue === LogicValue.Z}
 		class="fill-transparent stroke-[5] transition-colors duration-100"
 		class:dashed={is_hovering}
 		stroke-linecap={is_hovering?"round":"inherit"}

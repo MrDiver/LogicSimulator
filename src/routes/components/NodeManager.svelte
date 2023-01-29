@@ -43,7 +43,8 @@
             $lm.createComponent(LS.Sink);
             $lm.createComponent(LS.Sink);
             $lm.createComponent(LS.Inverter);
-            $lm.createComponent(LS.Inverter);
+            $lm.createComponent(LS.AndGate);
+            $lm.createComponent(LS.OrGate);
             $lm = $lm;
 		}
 		done_loading = true;

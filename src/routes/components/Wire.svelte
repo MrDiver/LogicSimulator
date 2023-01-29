@@ -62,6 +62,7 @@
 		class="{is_hovering ? 'stroke-yellow-500/60' : 'stroke-transparent'}
     transition-colors"
 		stroke-width={Math.max(10 * $zoomLevel, 15)}
+        stroke-linecap="round"
 		fill="transparent"
 		d={genPath($conA.x, $conA.y, $conB.x, $conB.y)}
 	/>

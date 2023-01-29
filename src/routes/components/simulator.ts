@@ -110,7 +110,7 @@ export abstract class Component extends CompositeClass {
         this.name = name;
         this.in_pins = [];
         this.out_pins = [];
-        this.appearance="";
+        this.appearance = "";
         this.showNames = false;
         this.showLabels = false;
         this.viewWidth = 90;
@@ -142,10 +142,12 @@ export abstract class Component extends CompositeClass {
     }
     internalCallback(source: ConnectorID) {
         console.debug(`[Component(${this.name})${this.id}] Update triggered by Input Connector${source}`)
-        this.onInputChange(source);
+        const inputs = this.in_pins.map(idx => this.lm.getInPort(idx).readValue(this.id));
+        const results = this.onInputChange(inputs);
+        results.forEach((v, i) => this.lm.getOutPort(this.out_pins[i]).writeValue(this.id, v));
         this.triggerUpdateSelf();
     }
-    abstract onInputChange(source: ConnectorID): void;
+    abstract onInputChange(source: LogicValue[]): LogicValue[];
 }
 
 // ---------------------------------------------------------------------
@@ -464,8 +466,8 @@ export class UnknownComponent extends Component {
     constructor(lm: LM) {
         super(lm, 'Unknown');
     }
-    onInputChange(source: number): void {
-        return
+    onInputChange(inputs: LogicValue[]): LogicValue[] {
+        return [];
     }
 }
 
@@ -474,9 +476,9 @@ export class Sink extends Component {
         super(lm, 'Sink');
         this.addInputPin('Sink');
     }
-    onInputChange(source: ConnectorID): void {
+    onInputChange(inputs: LogicValue[]): LogicValue[] {
         //console.log("SINK: " + this.getInput(0).readValue(this))
-        return;
+        return [];
     }
     getValue(): LogicValue {
         return this.getInput(0).readValue(this.id);
@@ -488,8 +490,8 @@ export class Source extends Component {
         super(lm, 'Source');
         this.addOutputPin('Source');
     }
-    onInputChange(source: ConnectorID): void {
-        return;
+    onInputChange(inputs: LogicValue[]): LogicValue[] {
+        return [];
     }
     setValue(v: LogicValue) {
         this.getOutput(0).writeValue(this.id, v);
@@ -507,19 +509,82 @@ export class Inverter extends Component {
             <circle fill="white" cx="82" cy="45" r="7" />
             </g>
         `
-        this.height=90
-        this.width=80
-        this.viewHeight=92
-        this.viewWidth=96
+        this.height = 90
+        this.width = 80
+        this.viewHeight = 92
+        this.viewWidth = 96
     }
-    override onInputChange(source: ConnectorID): void {
-        const in_pin = this.getInput(0);
-        const out_pin = this.getOutput(0);
-        switch (in_pin.readValue(this.id)) {
-            case LogicValue.Z: { out_pin.writeValue(this.id, LogicValue.X); break; }
-            case LogicValue.X: { out_pin.writeValue(this.id, LogicValue.X); break; }
-            case LogicValue.HIGH: { out_pin.writeValue(this.id, LogicValue.LOW); break; }
-            case LogicValue.LOW: { out_pin.writeValue(this.id, LogicValue.HIGH); break; }
+    override onInputChange(inputs: LogicValue[]): LogicValue[] {
+        switch (inputs[0]) {
+            case LogicValue.Z: return [LogicValue.X];
+            case LogicValue.X: return [LogicValue.X];
+            case LogicValue.HIGH: return [LogicValue.LOW];
+            case LogicValue.LOW: return [LogicValue.HIGH];
+        }
+    }
+}
+
+export class AndGate extends Component {
+    constructor(lm: LM) {
+        super(lm, 'AND');
+        this.addInputPin('A');
+        this.addInputPin('B');
+        this.addOutputPin('C');
+        this.appearance = `
+            <g class="fill-slate-500/40 stroke-2 stroke-black">
+                <path d="M4.82031 1.79858H46.5478C46.5733 1.80091 46.5991 1.80227 46.6251 1.80263C67.8013 2.09615 84.8203 18.8006 84.8203 39.2986C84.8203 59.7967 67.8013 76.5012 46.625 76.7947C46.5995 76.795 46.5741 76.7963 46.549 76.7986H46.0844L46.0709 76.7986H46.0583H46.0456L46.0321 76.7986H4.82031C3.16346 76.7986 1.82031 75.4554 1.82031 73.7986V4.79858C1.82031 3.14173 3.16346 1.79858 4.82031 1.79858ZM46.6349 76.7986H46.6251C46.6284 76.7985 46.6316 76.7986 46.6349 76.7986Z"/>
+            </g>
+        `
+        this.height = 79
+        this.width = 85
+        this.viewHeight = 90
+        this.viewWidth = 90
+    }
+    override onInputChange(inputs: LogicValue[]): LogicValue[] {
+        const a = inputs[0];
+        const b = inputs[1];
+        let c: LogicValue;
+        if (a === LogicValue.LOW || b === LogicValue.LOW) {
+            return [LogicValue.LOW];
+        }
+        else if (a === LogicValue.X || a === LogicValue.Z || b === LogicValue.X || b === LogicValue.Z) {
+            return [LogicValue.X];
+        } else if (a === LogicValue.HIGH && b === LogicValue.HIGH) {
+            return [LogicValue.HIGH];
+        } else {
+            return [LogicValue.LOW];;
+        }
+    }
+}
+
+
+export class OrGate extends Component {
+    constructor(lm: LM) {
+        super(lm, 'OR');
+        this.addInputPin('A');
+        this.addInputPin('B');
+        this.addOutputPin('C');
+        this.appearance = `
+            <g style="transform: translate(-9px, 0px)" class="fill-slate-500/40 stroke-2 stroke-black">
+                <path d="M2.2195 3.91089L26.9224 3.91092C44.6733 3.91092 58.4162 11.4525 68.167 19.7425C77.9247 28.0384 83.6424 37.0508 85.3058 39.8792C85.4595 40.1406 85.4595 40.4564 85.3058 40.7178C83.6424 43.5462 77.9247 52.5586 68.167 60.8546C58.4162 69.1446 44.6733 76.6862 26.9224 76.6863L2.2191 76.6862C1.44112 76.6862 0.905982 75.8075 1.30388 75.0883C3.1363 71.7762 6.06626 66.139 8.54057 59.82C11.0069 53.5214 13.059 46.4504 13.059 40.2986C13.059 34.1467 11.0069 27.0757 8.54057 20.7772C6.06627 14.4581 3.1363 8.82093 1.30389 5.50887C0.906141 4.78995 1.4412 3.91089 2.2195 3.91089Z"/>
+            </g>
+        `
+        this.height = 80
+        this.width = 75
+        this.viewHeight = 90
+        this.viewWidth = 95
+    }
+    override onInputChange(inputs: LogicValue[]): LogicValue[] {
+        const a = inputs[0];
+        const b = inputs[1];
+        let c: LogicValue;
+        if (a === LogicValue.HIGH || b === LogicValue.HIGH) {
+            return [LogicValue.HIGH];
+        }
+        else if (a === LogicValue.X || a === LogicValue.Z || b === LogicValue.X || b === LogicValue.Z) {
+            return [LogicValue.X];
+        } else {
+            return [LogicValue.LOW];;
         }
     }
 }
@@ -678,6 +743,8 @@ export class LM {
                 case "Source": construct = Source; break;
                 case "Sink": construct = Sink; break;
                 case "Inverter": construct = Inverter; break;
+                case "AndGate": construct = AndGate; break;
+                case "OrGate": construct = OrGate; break;
                 default: construct = UnknownComponent; break;
             }
             this.isLocked = true;
@@ -689,7 +756,7 @@ export class LM {
             new_node.y = c.value.y;
             new_node.in_pins = c.value.in_pins;
             new_node.out_pins = c.value.out_pins;
-            if(construct.name === "Unknown")
+            if (construct.name === "Unknown")
                 new_node.appearance = c.value.appearance;
 
             new_node.in_pins.forEach(p => {

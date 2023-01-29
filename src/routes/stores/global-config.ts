@@ -4,7 +4,7 @@ import { LM, type Connector } from "../components/simulator";
 export const showPositions: Writable<boolean> = writable(false);
 export const showIndices: Writable<boolean> = writable(false);
 export const zoomLevel: Writable<number> = writable(1.0);
-export const gridSpacing: Writable<number> = writable(135/8);
+export const gridSpacing: Writable<number> = writable(135/2);
 export const useGrid: Writable<boolean> = writable(true);
 export const isConnectingState: Writable<boolean> = writable(false);
 export const currentConnectedPort: Writable<Connector | null> = writable(null);

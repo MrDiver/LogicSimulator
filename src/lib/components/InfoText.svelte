@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
-	import { zoomLevel } from '../stores/global-config';
+	import { zoomLevel } from '$lib/shared/stores/global-config';
 
 	export let x: number;
 	export let x_offset = 0;

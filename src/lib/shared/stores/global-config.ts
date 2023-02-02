@@ -1,5 +1,5 @@
 import { writable, type Writable } from "svelte/store";
-import { LM, type Connector } from "../components/simulator";
+import { LM, type Connector } from "$lib/simulator";
 
 export const showPositions: Writable<boolean> = writable(false);
 export const showIndices: Writable<boolean> = writable(false);

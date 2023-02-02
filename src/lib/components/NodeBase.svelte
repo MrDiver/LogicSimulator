@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { showPositions, useGrid } from '../stores/global-config';
-	import { zoomLevel, gridSpacing } from '../stores/global-config';
+	import { showPositions, useGrid } from '$lib/shared/stores/global-config';
+	import { zoomLevel, gridSpacing } from '$lib/shared/stores/global-config';
 	import { spring, tweened } from 'svelte/motion';
 	import { cubicInOut, quadInOut } from 'svelte/easing';
 	import InfoText from './InfoText.svelte';

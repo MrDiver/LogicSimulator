@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { writable, type Writable } from 'svelte/store';
-	import { lm, showIndices } from '../stores/global-config';
+	import { lm, showIndices } from '$lib/shared/stores/global-config';
 	import InfoText from './InfoText.svelte';
 	import NodeBase from './NodeBase.svelte';
 	import NodePort from './NodePort.svelte';
-	import type { Component } from './simulator';
+	import type { Component } from '$lib/simulator';
 
 	// Attributes
 	export let abstract_node: Component;

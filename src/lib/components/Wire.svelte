@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
 	import { createEventDispatcher } from 'svelte';
-	import { lm, showIndices, zoomLevel } from '../stores/global-config';
+	import { lm, showIndices, zoomLevel } from '$lib/shared/stores/global-config';
 	import InfoText from './InfoText.svelte';
-	import { ConnectionType, LogicValue, type Connector, type Wire } from './simulator';
+	import { ConnectionType, LogicValue, type Connector, type Wire } from '$lib/simulator';
 	import { genTooltip, tooltip } from './tooltip';
 	export let wire_node: Wire;
 	const wire: Writable<Wire> = wire_node.getStore();

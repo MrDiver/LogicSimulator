@@ -7,9 +7,9 @@
 		secondaryConnectedPort,
 		showIndices,
 		showPositions,
-	} from '../stores/global-config';
+	} from '$lib/shared/stores/global-config';
 	import InfoText from './InfoText.svelte';
-	import { ConnectionType, type Port } from './simulator';
+	import { ConnectionType, type Port } from '$lib/simulator';
 	import { genTooltip, tooltip } from './tooltip';
 
 	// Interface

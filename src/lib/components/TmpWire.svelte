@@ -5,8 +5,8 @@
 		screenPosition,
 		secondaryConnectedPort,
 		zoomLevel
-	} from '../stores/global-config';
-	import { ConnectionType, LogicValue, type Connector, type Wire } from './simulator';
+	} from '$lib/shared/stores/global-config';
+	import { ConnectionType, LogicValue, type Connector, type Wire } from '$lib/simulator';
 
 	const type_a: ConnectionType | undefined = $currentConnectedPort?.type;
 	let type_b: ConnectionType | undefined;

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import NodeManager from './NodeManager.svelte';
+	import NodeManager from '$lib/components/NodeManager.svelte';
     import {spring} from 'svelte/motion';
-	import { currentConnectedPort, gridSpacing, lm, mouseInsideLogic, screenPosition, screenSize, secondaryConnectedPort, shouldSave, zoomLevel } from '../stores/global-config';
-	import { LM } from './simulator';
+	import { currentConnectedPort, gridSpacing, lm, mouseInsideLogic, screenPosition, screenSize, secondaryConnectedPort, shouldSave, zoomLevel } from '$lib/shared/stores/global-config';
+	import { LM } from '$lib/simulator';
 
 	let pos_x = 0;
 	let pos_y = 0;

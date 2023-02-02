@@ -1,5 +1,5 @@
 <script>
-	import { showIndices, showPositions, useGrid } from '../stores/global-config';
+	import { showIndices, showPositions, useGrid } from '$lib/shared/stores/global-config';
 	import ToggleButton from './ToggleButton.svelte';
 </script>
 

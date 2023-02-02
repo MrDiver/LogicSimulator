@@ -737,7 +737,9 @@ export class LM {
             pin.lastValue = c.value.lastValue;
         })
 
+        console.log("LOADING")
         dto.components.forEach(c => {
+
             let construct;
             switch (c.className) {
                 case "Source": construct = Source; break;
@@ -756,7 +758,7 @@ export class LM {
             new_node.y = c.value.y;
             new_node.in_pins = c.value.in_pins;
             new_node.out_pins = c.value.out_pins;
-            if (construct.name === "Unknown")
+            if (construct.name === "UnknownComponent")
                 new_node.appearance = c.value.appearance;
 
             new_node.in_pins.forEach(p => {

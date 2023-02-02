@@ -2,7 +2,7 @@
 	import { cubicInOut, elasticOut } from 'svelte/easing';
 	import { fly, blur, fade } from 'svelte/transition';
 	import GenericNode from '../GenericNode.svelte';
-	import { LogicValue, type Sink } from '../simulator';
+	import { LogicValue, type Sink } from '$lib/simulator';
 	export let abstract_node: Sink;
 	const in_pin = abstract_node.getInput(0).getStore();
 

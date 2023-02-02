@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 	import GenericNode from '../GenericNode.svelte';
-	import { LogicValue, type Source } from '../simulator';
+	import { LogicValue, type Source } from '$lib/simulator';
 	export let abstract_node: Source;
 	const node = abstract_node.getStore();
 	const out_pin = abstract_node.getOutput(0).getStore();

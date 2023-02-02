@@ -324,7 +324,7 @@ class GeneralConnector extends Connector {
                 if (wire !== caller) {
                     this.lock();
                     this.lm.getWire(wire).updateValue(this.id, v)
-                    this.lock();
+                    this.unlock();
                 }
             }
         }
@@ -434,7 +434,7 @@ export class InPort extends Port {
         super.disconnect(wire);
     }
     override postDisconnect(wire: WireID): void {
-        this.writeValue(this.id, LogicValue.Z);
+        this.spreadValue(LogicValue.Z);
     }
     override getDrivers(w: WireID): ConnectorID[] {
         return [];
@@ -739,6 +739,7 @@ export class LM {
 
         console.log("LOADING")
         dto.components.forEach(c => {
+            console.log(c.className)
 
             let construct;
             switch (c.className) {
@@ -758,13 +759,14 @@ export class LM {
             new_node.y = c.value.y;
             new_node.in_pins = c.value.in_pins;
             new_node.out_pins = c.value.out_pins;
+            console.log(new_node.constructor.name)
             if (construct.name === "UnknownComponent")
                 new_node.appearance = c.value.appearance;
 
             new_node.in_pins.forEach(p => {
                 const pin = this.getConnector(p);
                 if (pin.type === ConnectionType.IN) {
-                    (pin as InPort).callback = new_node.onInputChange.bind(new_node);
+                    (pin as InPort).callback = new_node.internalCallback.bind(new_node);
                 }
             })
             // TODO: Function synthesis

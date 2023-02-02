@@ -241,16 +241,18 @@ export class Wire extends CompositeClass {
 class GeneralConnector extends Connector {
     lastValue: LogicValue;
     #currentlyChecked: boolean;
+    #currentlyDriverChecked: boolean;
     constructor(lm: LM, type: ConnectionType) {
         super(lm, type);
         this.lastValue = LogicValue.Z;
         this.#currentlyChecked = false;
+        this.#currentlyDriverChecked = false;
     }
-    protected lock() {
+    protected writeLock() {
         console.group(`[Connector${this.id}] lock()`);
         this.#currentlyChecked = true;
     }
-    protected unlock() {
+    protected writeUnlock() {
         console.debug(`[Connector${this.id}] unlock()`);
         console.groupEnd()
         this.#currentlyChecked = false;
@@ -258,11 +260,21 @@ class GeneralConnector extends Connector {
     protected isLocked() {
         return this.#currentlyChecked;
     }
+    protected driverLock() {
+        console.group(`[Connector${this.id}] lock()`);
+        this.#currentlyDriverChecked = true;
+    }
+    protected driverUnlock() {
+        console.debug(`[Connector${this.id}] unlock()`);
+        console.groupEnd()
+        this.#currentlyDriverChecked = false;
+    }
+    protected isDriverLocked() {
+        return this.#currentlyDriverChecked;
+    }
     protected spreadValue(v: LogicValue) {
         console.debug(`[Connector${this.id}] spreadValue ${v}`);
-        this.lock();
         this.connections.forEach(w => this.lm.getWire(w).updateValue(this.id, v));
-        this.unlock();
     }
     isDriving(): boolean {
         if (this.type === ConnectionType.OUT) {
@@ -304,8 +316,14 @@ class GeneralConnector extends Connector {
     }
     writeValue(caller: ComponentID | WireID, v: LogicValue): void {
         console.debug(`[Connector${this.id}] Write Requested from Caller${caller} (${this.lastValue} -> ${v})`);
+        if(this.isLocked() && this.lastValue !== v){
+            console.error(`Component${this.id} Already locked, maybe there is an unstable circuit present`);
+            this.spreadValue(LogicValue.X);
+            return;
+        }
         const drivers = this.getDrivers(caller);
 
+        this.writeLock();
         if (v === LogicValue.Z && drivers.length === 1) {
             console.debug(`[Connector${this.id}] Caller disconnected now using Connector${drivers[0]} as Driver`);
             this.lastValue = this.lm.getConnector(drivers[0]).readValue(this.id);
@@ -322,27 +340,25 @@ class GeneralConnector extends Connector {
             this.triggerUpdateSelf();
             for (const wire of this.connections) {
                 if (wire !== caller) {
-                    this.lock();
                     this.lm.getWire(wire).updateValue(this.id, v)
-                    this.unlock();
                 }
             }
         }
-
+        this.writeUnlock();
     }
     getDrivers(sender: WireID | ComponentID): ConnectorID[] {
         console.debug(`[Connector${this.id}] Requested Drivers from Caller${sender}`);
-        if (this.isLocked()) {
+        if (this.isDriverLocked()) {
             return [];
         }
         let drivers: ConnectorID[] = []
-        this.lock();
+        this.driverLock();
         for (const wire of this.connections) {
             if (wire !== sender) {
                 drivers = drivers.concat(this.lm.getWire(wire).getDrivers(this.id));
             }
         }
-        this.unlock();
+        this.driverUnlock();
         return drivers;
     }
 }
@@ -376,12 +392,12 @@ export class OutPort extends Port {
             return;
         }
         console.debug(`[OutPort${this.id}] Accepting Write from Caller${caller} Checking for invalidation`);
-        this.lock();
         // let incoming = this.connections.map(w => w.getDrivers(this));
         // let drivers = incoming.reduce((a,b) => a.concat(b));
         // console.debug("%c ARRAY","color:red",drivers);
+        this.driverLock();
         super.writeValue(caller, v);
-        this.unlock();
+        this.driverUnlock();
     }
     override disconnect(wire: WireID): void {
         super.disconnect(wire);
@@ -399,7 +415,7 @@ export class OutPort extends Port {
     }
     override getDrivers(wire: WireID): ConnectorID[] {
         console.debug(`[OutPort${this.id}] Requested Drivers from Wire${wire}`);
-        if (this.isLocked()) {
+        if (this.isDriverLocked()) {
             return [];
         }
         return this.isDriving() ? [this.id] : [];
@@ -435,6 +451,8 @@ export class InPort extends Port {
     }
     override postDisconnect(wire: WireID): void {
         this.spreadValue(LogicValue.Z);
+        this.lastValue = LogicValue.Z;
+        this.callback(this.id);
     }
     override getDrivers(w: WireID): ConnectorID[] {
         return [];
@@ -526,7 +544,7 @@ export class Inverter extends Component {
 
 export class AndGate extends Component {
     constructor(lm: LM) {
-        super(lm, 'AND');
+        super(lm, 'And');
         this.addInputPin('A');
         this.addInputPin('B');
         this.addOutputPin('C');
@@ -560,7 +578,7 @@ export class AndGate extends Component {
 
 export class OrGate extends Component {
     constructor(lm: LM) {
-        super(lm, 'OR');
+        super(lm, 'Or');
         this.addInputPin('A');
         this.addInputPin('B');
         this.addOutputPin('C');
@@ -704,15 +722,15 @@ export class LM {
     getDto(): LMDto {
         const wires = []
         for (const w of this.wires.values()) {
-            wires.push({ className: w.constructor.name, value: w });
+            wires.push(w);
         }
         const components = []
         for (const c of this.components.values()) {
-            components.push({ className: c.constructor.name, value: c, onInputChange: 'return function ' + c.onInputChange.toString() });
+            components.push({ className: c.name, value: c, onInputChange: 'return function ' + c.onInputChange.toString() });
         }
         const connectors = []
         for (const c of this.connectors.values()) {
-            connectors.push({ className: c.constructor.name, value: c });
+            connectors.push(c);
         }
         return { wires, components, connectors };
     }
@@ -725,16 +743,16 @@ export class LM {
 
         dto.connectors.forEach(c => {
             let pid = -1;
-            switch (c.value.type as ConnectionType) {
-                case ConnectionType.IN: pid = this.createInPort((c.value as InPort).port_id, (c.value as InPort).port_name, () => { return }, c.value.id); break;
-                case ConnectionType.OUT: pid = this.createOutPort((c.value as OutPort).port_id, (c.value as InPort).port_name, c.value.id); break;
-                case ConnectionType.INOUT: pid = this.createConnector(MultiConnect, c.value.id); break;
+            switch (c.type as ConnectionType) {
+                case ConnectionType.IN: pid = this.createInPort((c as InPort).port_id, (c as InPort).port_name, () => { return }, c.id); break;
+                case ConnectionType.OUT: pid = this.createOutPort((c as OutPort).port_id, (c as InPort).port_name, c.id); break;
+                case ConnectionType.INOUT: pid = this.createConnector(MultiConnect, c.id); break;
             }
-            if (pid != c.value.id) {
+            if (pid != c.id) {
                 throw Error("Something went terribly wrong here");
             }
             const pin = this.getConnector(pid);
-            pin.lastValue = c.value.lastValue;
+            pin.lastValue = c.lastValue;
         })
 
         console.log("LOADING")
@@ -746,8 +764,8 @@ export class LM {
                 case "Source": construct = Source; break;
                 case "Sink": construct = Sink; break;
                 case "Inverter": construct = Inverter; break;
-                case "AndGate": construct = AndGate; break;
-                case "OrGate": construct = OrGate; break;
+                case "And": construct = AndGate; break;
+                case "Or": construct = OrGate; break;
                 default: construct = UnknownComponent; break;
             }
             this.isLocked = true;
@@ -775,16 +793,16 @@ export class LM {
         })
 
         dto.wires.forEach(w => {
-            this.createWire(w.value.conA, w.value.conB);
+            this.createWire(w.conA, w.conB);
         })
         console.debug("LM", this);
     }
 }
 
 export interface LMDto {
-    wires: { className: string, value: Wire }[];
+    wires: Wire[];
     components: { className: string, value: Component, onInputChange: string }[];
-    connectors: { className: string, value: GeneralConnector }[];
+    connectors: GeneralConnector[];
 }
 
 export class TestMain {

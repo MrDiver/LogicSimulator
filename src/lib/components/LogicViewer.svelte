@@ -1,8 +1,9 @@
 <script lang="ts">
 	import NodeManager from '$lib/components/NodeManager.svelte';
     import {spring} from 'svelte/motion';
-	import { currentConnectedPort, gridSpacing, lm, mouseInsideLogic, screenPosition, screenSize, secondaryConnectedPort, shouldSave, zoomLevel } from '$lib/shared/stores/global-config';
+	import { currentConnectedPort, currentPlaceableComponent, gridSpacing, lm, mouseInsideLogic, screenPosition, screenSize, secondaryConnectedPort, shouldSave, zoomLevel } from '$lib/shared/stores/global-config';
 	import { LM } from '$lib/simulator';
+	import ComponentMenu from './menu/ComponentMenu.svelte';
 
 	let pos_x = 0;
 	let pos_y = 0;
@@ -92,7 +93,9 @@
 		<p>vx:{Math.round(vx)} vy:{Math.round(vy)} vw:{Math.round(vw)} vh:{Math.round(vh)}</p>
 		<p>Primary: {$currentConnectedPort !== null ? $currentConnectedPort.id : 'null'}</p>
 		<p>Secondary: {$secondaryConnectedPort !== null ? $secondaryConnectedPort.id : 'null'}</p>
+		<p>Placeable: {$currentPlaceableComponent !== null ? $currentPlaceableComponent.name : 'null'}</p>
 	</div>
+    <ComponentMenu/>
     <div class="absolute top-3 right-3 flex gap-3">
         <div
             id="save-button"

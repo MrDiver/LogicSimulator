@@ -10,7 +10,7 @@
 		shouldSave,
 		zoomLevel
 	} from '$lib/shared/stores/global-config';
-	import Inverter from './gates/Inverter.svelte';
+    import TmpComponent from './TmpComponent.svelte';
 	import Source from './gates/Source.svelte';
 	import Sink from './gates/Sink.svelte';
 	import GenericNode from './GenericNode.svelte';
@@ -38,19 +38,19 @@
 		    loadFromSave(load_string);
 		// console.debug('LOADED STATE', loaded_state);
 		// component_store = writable(loaded_state);
-		if ($lm.components.size === 0) {
-			$lm.createComponent(LS.Source);
-			$lm.createComponent(LS.Source);
-			$lm.createComponent(LS.Sink);
-			$lm.createComponent(LS.Sink);
-			$lm.createComponent(LS.Inverter);
-			$lm.createComponent(LS.Inverter);
-			$lm.createComponent(LS.OrGate);
-			$lm.createComponent(LS.OrGate);
-			$lm.createComponent(LS.AndGate);
-			$lm.createComponent(LS.AndGate);
-			$lm = $lm;
-		}
+		// if ($lm.components.size === 0) {
+		// 	$lm.createComponent(LS.Source);
+		// 	$lm.createComponent(LS.Source);
+		// 	$lm.createComponent(LS.Sink);
+		// 	$lm.createComponent(LS.Sink);
+		// 	$lm.createComponent(LS.Inverter);
+		// 	$lm.createComponent(LS.Inverter);
+		// 	$lm.createComponent(LS.OrGate);
+		// 	$lm.createComponent(LS.OrGate);
+		// 	$lm.createComponent(LS.AndGate);
+		// 	$lm.createComponent(LS.AndGate);
+		// 	$lm = $lm;
+		// }
 		done_loading = true;
 	});
 
@@ -104,8 +104,6 @@
 	/>
 {/each}
 {#each components as c (c.id)}
-	<!--{#if c instanceof LS.Inverter}-->
-	<!-- <Inverter on:cancel_port_connect={handleCancelPortConnect} abstract_node={c} /> -->
 	{#if c instanceof LS.Source}
 		<Source on:cancel_port_connect={handleCancelPortConnect} abstract_node={c} />
 	{:else if c instanceof LS.Sink}
@@ -116,3 +114,5 @@
 {/each}
 
 <TmpWire />
+
+<!-- <TmpComponent /> -->

@@ -78,7 +78,7 @@
 	<NodePort
 		on:start_port_connect
 		on:cancel_port_connect
-		port_node={$lm.getInPort(port)}
+		port_node={$node.lm.getInPort(port)}
 		bind:show_labels
 		pos_x={position.x - width / 2}
 		pos_y={position.y + calc_port(i, in_ports, height) - height / 2}
@@ -88,7 +88,7 @@
 	<NodePort
 		on:start_port_connect
 		on:cancel_port_connect
-		port_node={$lm.getOutPort(port)}
+		port_node={$node.lm.getOutPort(port)}
 		bind:show_labels
 		pos_x={position.x + width / 2}
 		pos_y={position.y + calc_port(i, out_ports, height) - height / 2}

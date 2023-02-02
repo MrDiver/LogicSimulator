@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-                w_low:{...colors.yellow, DEFAULT: colors.yellow[500]},
+                w_low:{...colors.blue, DEFAULT: colors.blue[500]},
                 w_high:{...colors.lime, DEFAULT: colors.lime[500]},
                 w_x:{...colors.red, DEFAULT: colors.red[500]},
                 w_z:{...colors.slate, DEFAULT:colors.slate[400]},
